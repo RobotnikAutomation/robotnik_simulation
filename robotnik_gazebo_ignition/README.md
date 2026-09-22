@@ -172,6 +172,20 @@ Make sure to replace `/robot/robotnik_base_control/cmd_vel` with the appropriate
 
 Also, you can use RViz plugin on the bottom right to control the robot by clicking on the arrows.
 
+To teleoperate the arm you need to run simulation with MoveIt and when it is loaded switch controllers:
+
+```bash
+ros2 service call /robot/controller_manager/switch_controller controller_manager_msgs/srv/SwitchController "{activate_controllers: {joint_trajectory_controller}, deactivate_controllers: {forward_position_controller, velocity_controller}}"
+
+ros2 service call /robot/controller_manager/switch_controller controller_manager_msgs/srv/SwitchController "{activate_controllers: {forward_position_controller}, deactivate_controllers: {joint_trajectory_controller, velocity_controller}}"
+```
+
+Afterwards you can run application that allows to teleoperate arm with keyboard:
+
+```bash
+ros2 run robotnik_servo_keyboard_input servo_keyboard_input
+```
+
 ## 🦾 MoveIt compatibility
 
 It is possible to use [MoveIt](https://moveit.picknik.ai/main/index.html) to control robotic arms mounted on supported platforms.

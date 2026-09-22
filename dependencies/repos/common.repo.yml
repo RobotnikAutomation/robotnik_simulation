@@ -49,6 +49,10 @@ repositories:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_moveit_configs.git
     version: robot/jazzy/rbkairos_rbrobout_centauro
+  src/robotnik_servo_keyboard_input:
+    type: git
+    url: https://github.com/RobotnikAutomation/robotnik_servo_keyboard_input.git
+    version: jazzy-devel
   src/tf_target_publisher:
     type: git
     url: https://github.com/RobotnikAutomation/tf_target_publisher.git
