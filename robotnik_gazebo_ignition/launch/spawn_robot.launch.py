@@ -28,8 +28,9 @@ import os
 
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, OpaqueFunction
+from launch.actions import IncludeLaunchDescription, OpaqueFunction, TimerAction, RegisterEventHandler
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.event_handlers import OnProcessExit
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import SubstitutionFailure
@@ -126,6 +127,11 @@ def substitute_param_context(param, context):
 
 def launch_setup(context, params):
     ret = []
+
+    # Required by ros2_control YAML templates that use $(var frame_prefix).
+    # Use the frame_prefix parameter passed from parent launch context.
+    frame_prefix_value = substitute_param_context(params['frame_prefix'], context)
+    context.launch_configurations['frame_prefix'] = frame_prefix_value
 
     # Robot Description
     ret.append(IncludeLaunchDescription(
@@ -270,22 +276,61 @@ def launch_setup(context, params):
     if 'joint_state_broadcaster' in new_controllers:
         controllers.remove('joint_state_broadcaster')
     controllers.extend(new_controllers)
-    print("Controllers to be spawned:", controllers)
 
+    # Some arm setups define both trajectory and forward position controllers on the
+    # same position interfaces. Spawn forward_position_controller inactive so it is
+    # available for switching without conflicting at startup.
+    inactive_controllers = []
+    if 'joint_trajectory_controller' in controllers and 'forward_position_controller' in controllers:
+        controllers.remove('forward_position_controller')
+        inactive_controllers.append('forward_position_controller')
+
+    print("Controllers to be spawned:", controllers)
+    if inactive_controllers:
+        print("Controllers to be spawned inactive:", inactive_controllers)
+
+    # Create ConfigFile substitution (do NOT call perform() - let launch system manage lifecycle)
     robot_controller_config = ConfigFile(path)
 
-    controllers.append('--param-file')
-    controllers.append(
-         robot_controller_config, # type: ignore
-    )
+    active_controller_args = list(controllers)
+    active_controller_args.append('--param-file')
+    active_controller_args.append(robot_controller_config)  # Pass substitution directly
 
-    ret.append(Node(
+    active_spawner = Node(
         package='controller_manager',
         executable='spawner',
         namespace=params['robot_id'],
-        arguments=controllers,
+        arguments=active_controller_args,
         output='screen',
+    )
+
+    # Give gz_ros2_control time to initialize controller_manager before spawning.
+    ret.append(TimerAction(
+        period=8.0,
+        actions=[active_spawner],
     ))
+
+    if inactive_controllers:
+        inactive_controller_args = list(inactive_controllers)
+        inactive_controller_args.append('--inactive')
+        inactive_controller_args.append('--param-file')
+        inactive_controller_args.append(robot_controller_config)  # Same substitution for inactive
+
+        inactive_spawner = Node(
+            package='controller_manager',
+            executable='spawner',
+            namespace=params['robot_id'],
+            arguments=inactive_controller_args,
+            output='screen',
+        )
+
+        # Start inactive controllers only after active spawner finishes.
+        ret.append(RegisterEventHandler(
+            OnProcessExit(
+                target_action=active_spawner,
+                on_exit=[TimerAction(period=1.0, actions=[inactive_spawner])],
+            )
+        ))
 
     # Check if rviz config path is modified, if not use default fixed frame
     rviz_config_default = str(
@@ -348,6 +393,7 @@ def launch_setup(context, params):
 def generate_launch_description():
     raw_args = [
         ("robot_id", "Unique Robot Identifier", "robot", "ROBOT_ID"),
+        ("frame_prefix", "Frame prefix for joint and link names", [LaunchConfiguration('robot_id'), "_"], "FRAME_PREFIX"),
         ("robot", "Robot Model Name", "rbwatcher", "ROBOT"),
         ("robot_model", "Robot Variant or Type", LaunchConfiguration('robot'), "ROBOT_MODEL"),
         ("robot_xacro_path", "Path to Robot Xacro File", [FindPackageShare('robotnik_description'), '/robots/', LaunchConfiguration('robot'), '/', LaunchConfiguration('robot_model'), '.urdf.xacro'], "ROBOT_XACRO_PATH"),

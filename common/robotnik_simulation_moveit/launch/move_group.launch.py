@@ -49,7 +49,25 @@ def launch_setup(context, *args, **kwargs):
     arm_type = LaunchConfiguration('arm_type').perform(context)
 
     moveit_config_pkg = get_package_share_directory(moveit_config_name)
-    srdf_path = os.path.join(moveit_config_pkg, 'config', f'{robot_model}.srdf')
+
+    def resolve_model_name_for_file(extension):
+        package_model = moveit_config_name.replace('_moveit_config', '')
+        candidates = [robot_model, package_model]
+        if robot_model.startswith('centauro_'):
+            candidates.append(robot_model[len('centauro_'):])
+        if package_model.startswith('centauro_'):
+            candidates.append(package_model[len('centauro_'):])
+
+        for candidate in candidates:
+            file_path = os.path.join(moveit_config_pkg, 'config', f'{candidate}{extension}')
+            if os.path.exists(file_path):
+                return file_path
+
+        raise FileNotFoundError(
+            f"No model file '*{extension}' found for candidates {candidates} in {moveit_config_pkg}/config"
+        )
+
+    srdf_path = resolve_model_name_for_file('.srdf')
     default_moveit_configs = '/opt/ros/jazzy/share/moveit_configs_utils/'
 
     robot_description = {

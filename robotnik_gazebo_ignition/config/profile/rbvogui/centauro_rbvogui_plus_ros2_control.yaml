@@ -171,6 +171,10 @@
         - $(var frame_prefix)front_left_wheel_joint
         - $(var frame_prefix)back_right_wheel_joint
         - $(var frame_prefix)back_left_wheel_joint
+        - $(var frame_prefix)front_right_steering_joint
+        - $(var frame_prefix)front_left_steering_joint
+        - $(var frame_prefix)back_right_steering_joint
+        - $(var frame_prefix)back_left_steering_joint
         - $(var frame_prefix)arm_shoulder_pan_joint
         - $(var frame_prefix)arm_shoulder_lift_joint
         - $(var frame_prefix)arm_elbow_joint
@@ -183,6 +187,16 @@
         - effort
 
   velocity_controller:
+    ros__parameters:
+      joints:
+        - $(var frame_prefix)arm_shoulder_pan_joint
+        - $(var frame_prefix)arm_shoulder_lift_joint
+        - $(var frame_prefix)arm_elbow_joint
+        - $(var frame_prefix)arm_wrist_1_joint
+        - $(var frame_prefix)arm_wrist_2_joint
+        - $(var frame_prefix)arm_wrist_3_joint
+
+  forward_position_controller:
     ros__parameters:
       joints:
         - $(var frame_prefix)arm_shoulder_pan_joint

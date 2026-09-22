@@ -23,6 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
+
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
@@ -39,6 +41,11 @@ def generate_launch_description():
             "robot_id",
             default_value="robot",
             description="Name for launch and config resources"
+        ),
+        DeclareLaunchArgument(
+            "frame_prefix",
+            default_value=[LaunchConfiguration("robot_id"), "_"],
+            description="Frame prefix for joint and link names"
         ),
         DeclareLaunchArgument(
             "robot",
@@ -124,6 +131,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_id': robot_id,
+            'frame_prefix': LaunchConfiguration('frame_prefix'),
             'robot': robot,
             'robot_model': robot_model,
             'robot_xacro_path': robot_xacro_path,
@@ -238,9 +246,28 @@ def generate_launch_description():
         condition=IfCondition(run_moveit),
     )
 
+    moveit_servo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('robotnik_simulation_moveit'), 'launch/moveit_servo.launch.py',
+            ])
+        ),
+        launch_arguments={
+            'robot_id': robot_id,
+            'robot': robot,
+            'robot_model': robot_model,
+            'robot_xacro_path': robot_xacro_path,
+            'moveit_manipulation_package_name': [robot_model, '_moveit_config'],
+            'arm_type': arm_type,
+            'use_sim_time': 'true',
+            
+        }.items(),
+        condition=IfCondition(run_moveit),
+    )
+
     delayed_moveit = TimerAction(
         period=25.0,
-        actions=[moveit]
+        actions=[moveit, moveit_servo]
     )
 
     group = GroupAction([
