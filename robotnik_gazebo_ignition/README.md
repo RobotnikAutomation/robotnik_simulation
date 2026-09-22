@@ -172,7 +172,7 @@ Make sure to replace `/robot/robotnik_base_control/cmd_vel` with the appropriate
 
 Also, you can use RViz plugin on the bottom right to control the robot by clicking on the arrows.
 
-To teleoperate the arm you need to run simulation with MoveIt and when it is loaded switch controllers:
+To teleoperate the arm you need to run simulation with MoveIt (currently supported only centauro_rbvogui_plus) and when it is loaded switch controllers:
 
 ```bash
 ros2 service call /robot/controller_manager/switch_controller controller_manager_msgs/srv/SwitchController "{activate_controllers: {joint_trajectory_controller}, deactivate_controllers: {forward_position_controller, velocity_controller}}"
