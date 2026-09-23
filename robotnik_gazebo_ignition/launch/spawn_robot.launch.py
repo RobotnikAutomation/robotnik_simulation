@@ -154,15 +154,22 @@ def launch_setup(context, params):
                 (f"/{robot_id}/{camera_name}_camera_depth/depth/image_raw", f"/{robot_id}/{camera_name}_rgbd_camera/depth/image_raw", "sensor_msgs/msg/Image", "gz.msgs.Image", "GZ_TO_ROS"),
             ])
 
-        add_camera("front")
-        add_camera("rear")
-        add_camera("top_ptz")
-        #add_depth_camera("front")
-        if robot_model != "rbcar":
-            add_laser("front")
-        add_laser("rear")
-        add_pointcloud("top")
-        #add_pointcloud("front")
+        if robot_model == "rbwatcher":
+            # rbwatcher equips these streams; avoid bridges for sensors that
+            # are not present in its Gazebo model.
+            add_camera("front")
+            add_camera("top_ptz")
+            add_depth_camera("top_ptz")
+            add_pointcloud("top")
+        else:
+            # Preserve the legacy generic profile for the other models.
+            add_camera("front")
+            add_camera("rear")
+            add_camera("top_ptz")
+            if robot_model != "rbcar":
+                add_laser("front")
+            add_laser("rear")
+            add_pointcloud("top")
 
         bridge_config = [{"ros_topic_name": ros, "gz_topic_name": gz, "ros_type_name": ros_type, "gz_type_name": gz_type, "direction": direction} for gz, ros, ros_type, gz_type, direction in bridge_raw]
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:

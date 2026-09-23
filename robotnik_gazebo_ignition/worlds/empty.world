@@ -3,6 +3,7 @@
   <world name='empty'>
     <physics type='ode'>
       <max_step_size>0.02</max_step_size>
+      <real_time_update_rate>50</real_time_update_rate>
       <real_time_factor>1.0</real_time_factor>
     </physics>
     <plugin name='gz::sim::systems::Physics' filename='libgz-sim-physics-system.so'/>
