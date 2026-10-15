@@ -70,22 +70,24 @@ You can also check whether Gazebo world services are still available:
 gz service -l | grep /world/
 ```
 
-If the Gazebo server is still running and you want to stop the simulation completely, use the cleanup helper:
+If the Gazebo server is still running and you want to stop the simulation
+completely, run the cleanup helper manually. Closing the GUI or pressing Ctrl+C
+in a launch terminal does not invoke this script automatically:
 
 ```bash
-ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh
+ros2 run robotnik_gazebo_ignition stop_gazebo_sim.sh
 ```
 
 If common ROS simulation helper processes also remain, use:
 
 ```bash
-ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh --all
+ros2 run robotnik_gazebo_ignition stop_gazebo_sim.sh --all
 ```
 
 Use `--force` only if the graceful shutdown does not stop the remaining processes:
 
 ```bash
-ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh --force
+ros2 run robotnik_gazebo_ignition stop_gazebo_sim.sh --force
 ```
 
 Note that this helper is intended for development cleanup. It stops lingering Gazebo simulation processes and, with `--all`, common ROS simulation helper processes. Do not use it if you are intentionally running another Gazebo simulation in the same machine.
