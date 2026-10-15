@@ -23,49 +23,50 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
+
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
-from launch.actions import GroupAction
-from robotnik_common.launch import ConfigFile
+from launch_ros.actions import Node, PushRosNamespace
+from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
+from launch_ros.parameter_descriptions import ParameterFile
 
-def generate_launch_description():
-    
+def _resolve_config(context, filename):
+    robot = LaunchConfiguration("robot").perform(context)
+    if robot:
+        path = os.path.join(
+            FindPackageShare("robotnik_simulation_robots").perform(context),
+            robot,
+            "navigation",
+            filename,
+        )
+    else:
+        path = os.path.join(
+            FindPackageShare("robotnik_simulation_navigation").perform(context),
+            "config",
+            filename,
+        )
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"Navigation configuration was not found: {path}")
+    return ParameterFile(path, allow_substs=True)
+
+
+def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")
-    use_sim = LaunchConfiguration("use_sim")
+    use_sim_time = LaunchConfiguration("use_sim_time")
     frame_prefix = LaunchConfiguration("frame_prefix")
 
     # Nav2 core node configurations
-
-    controller_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_navigation'),
-        'config/controller_server.yaml'
-    ])
-
-    planner_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_navigation'),
-        'config/planner_server.yaml'
-    ])
+    controller_params = _resolve_config(context, "controller_server.yaml")
+    planner_params = _resolve_config(context, "planner_server.yaml")
 
     # Nav2 auxiliary node configurations
-
-    behavior_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_navigation'),
-        'config/behavior_server.yaml'
-    ])
-
-    smoother_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_navigation'),
-        'config/smoother_server.yaml'
-    ])
+    behavior_params = _resolve_config(context, "behavior_server.yaml")
+    smoother_params = _resolve_config(context, "smoother_server.yaml")
 
     # Nav2 orchestration node configurations
-
-    bt_navigator_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_navigation'),
-        'config/bt_navigator.yaml'
-    ])
+    bt_navigator_params = _resolve_config(context, "bt_navigator.yaml")
 
     bt_navigator_pose_xml = PathJoinSubstitution([
         FindPackageShare('robotnik_simulation_navigation'),
@@ -77,12 +78,6 @@ def generate_launch_description():
         'config/behavior_trees/navigate_through_poses.xml'
     ])
 
-    controller_params = ConfigFile(controller_config)
-    planner_params = ConfigFile(planner_config)
-    behavior_params = ConfigFile(behavior_config)
-    smoother_params = ConfigFile(smoother_config)
-    bt_navigator_params = ConfigFile(bt_navigator_config)
-
     # Nav2 core nodes
 
     controller_server = Node(
@@ -90,7 +85,7 @@ def generate_launch_description():
         executable='controller_server',
         name='controller_server',
         output='screen',
-        parameters=[controller_params, {'use_sim_time': use_sim}],
+        parameters=[controller_params, {'use_sim_time': use_sim_time}],
         remappings=[
             ('cmd_vel', 'robotnik_base_control/cmd_vel'),
             ('odom', 'robotnik_base_control/odom'),
@@ -102,7 +97,7 @@ def generate_launch_description():
         executable='planner_server',
         name='planner_server',
         output='screen',
-        parameters=[planner_params, {'use_sim_time': use_sim}],
+        parameters=[planner_params, {'use_sim_time': use_sim_time}],
     )
 
     # Nav2 auxiliary nodes
@@ -112,7 +107,7 @@ def generate_launch_description():
         executable='behavior_server',
         name='behavior_server',
         output='screen',
-        parameters=[behavior_params, {'use_sim_time': use_sim}],
+        parameters=[behavior_params, {'use_sim_time': use_sim_time}],
         remappings=[
             ('cmd_vel', 'robotnik_base_control/cmd_vel')
         ] 
@@ -123,7 +118,7 @@ def generate_launch_description():
         executable='smoother_server',
         name='smoother_server',
         output='screen',
-        parameters=[smoother_params, {'use_sim_time': use_sim}],
+        parameters=[smoother_params, {'use_sim_time': use_sim_time}],
     )
 
 
@@ -137,7 +132,7 @@ def generate_launch_description():
         parameters=[
             bt_navigator_params,
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'default_nav_to_pose_bt_xml': bt_navigator_pose_xml,
                 'default_nav_through_poses_bt_xml': bt_navigator_poses_xml,
             }
@@ -154,7 +149,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'autostart': True,
                 'node_names': [
                     'controller_server',
@@ -168,6 +163,7 @@ def generate_launch_description():
     )
 
     group = GroupAction([
+        PushRosNamespace(robot_id),
         controller_server,
         planner_server,
         behavior_server,
@@ -176,4 +172,14 @@ def generate_launch_description():
         lifecycle_manager_navigation
     ])
 
-    return LaunchDescription([group])
+    return [group]
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument("robot_id", default_value="robot"),
+        DeclareLaunchArgument("use_sim_time", default_value="true"),
+        DeclareLaunchArgument("frame_prefix", default_value=[LaunchConfiguration("robot_id"), "_"]),
+        DeclareLaunchArgument("robot", default_value="", description="Optional robot profile"),
+        OpaqueFunction(function=_launch_setup),
+    ])

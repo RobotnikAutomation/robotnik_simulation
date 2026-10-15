@@ -13,6 +13,7 @@
   global_costmap:
     global_costmap:
       ros__parameters:
+        use_sim_time: $(var use_sim_time)
         update_frequency: 1.0
         publish_frequency: 1.0
         global_frame: $(var frame_prefix)map

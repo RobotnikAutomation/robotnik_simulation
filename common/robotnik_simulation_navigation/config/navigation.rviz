@@ -34,7 +34,7 @@ Panels:
     MaxAngular: 1
     MaxLinear: 1
     Name: Teleop
-    Topic: /robot/robotnik_base_control/cmd_vel_unstamped
+    Topic: /$(var robot_id)/robotnik_base_control/cmd_vel_unstamped
   - Class: nav2_rviz_plugins/Navigation 2
     Name: Navigation 2
 Visualization Manager:
