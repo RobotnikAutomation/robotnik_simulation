@@ -36,15 +36,11 @@ repositories:
     version: jazzy-devel
   robotnik/robotnik_common:
     type: git
-    url: https://github.com/jlgalanRB/robotnik_common
-    version: feature/ConfigFile
+    url: https://github.com/RobotnikAutomation/robotnik_common.git
+    version: jazzy-devel
   robotnik/robotnik_interfaces:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_interfaces.git
-    version: jazzy-devel
-  robotnik/robotnik_moveit_configs:
-    type: git
-    url: https://github.com/RobotnikAutomation/robotnik_moveit_configs.git
     version: jazzy-devel
   robotnik/robotnik_teleop_panel:
     type: git
