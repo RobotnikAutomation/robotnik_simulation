@@ -87,16 +87,16 @@ def _launch_setup(context):
     description = {name: values[name] for name in (
         "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type", "use_sim_time",
     )}
-    actions = messages + [
-        _include("robotnik_gazebo_ignition", "spawn_world.launch.py", {
+    actions = list(messages)
+    if enabled("run_world"):
+        actions.append(_include("robotnik_gazebo_ignition", "spawn_world.launch.py", {
             name: values[name] for name in ("world", "world_path", "run_gazebo_gui", "use_nvidia_gpu")
-        }),
-        _include("robotnik_gazebo_ignition", "spawn_robot.launch.py", {
-            **description,
-            **{name: values[name] for name in ("x", "y", "z", "low_performance_simulation", "spawn_rviz_config")},
-            "run_spawn_rviz": str(enabled("run_spawn_rviz") and not navigation).lower(),
-        }),
-    ]
+        }))
+    actions.append(_include("robotnik_gazebo_ignition", "spawn_robot.launch.py", {
+        **description,
+        **{name: values[name] for name in ("x", "y", "z", "low_performance_simulation", "spawn_rviz_config")},
+        "run_spawn_rviz": str(enabled("run_spawn_rviz") and not navigation).lower(),
+    }))
     if localization:
         actions.append(_include("robotnik_simulation_localization", "localization.launch.py", {
             **common, "run_mapping": values["run_mapping"],
@@ -110,7 +110,7 @@ def _launch_setup(context):
 
 ARGUMENT_NAMES = (
     "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type",
-    "use_sim_time", "run_gazebo_gui", "use_nvidia_gpu", "run_localization", "run_navigation", "run_moveit",
+    "use_sim_time", "run_world", "run_gazebo_gui", "use_nvidia_gpu", "run_localization", "run_navigation", "run_moveit",
     "run_spawn_rviz", "spawn_rviz_config", "low_performance_simulation",
     "world", "world_path", "x", "y", "z", "run_mapping",
 )
@@ -128,6 +128,7 @@ def generate_launch_description():
         DeclareLaunchArgument("frame_prefix", default_value=[LaunchConfiguration("robot_id"), "_"], description="Prefix for frames and joints"),
         DeclareLaunchArgument("arm_type", default_value="ur10e"),
         DeclareLaunchArgument("use_sim_time", default_value="true"),
+        DeclareLaunchArgument("run_world", default_value="true", description="Start Gazebo and the clock bridge; false uses an existing world"),
         DeclareLaunchArgument("run_gazebo_gui", default_value="true"),
         DeclareLaunchArgument("use_nvidia_gpu", default_value="false", description="NVIDIA PRIME render offload for Gazebo"),
         DeclareLaunchArgument("run_localization", default_value="true"),

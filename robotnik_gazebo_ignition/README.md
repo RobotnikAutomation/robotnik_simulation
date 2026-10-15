@@ -111,8 +111,9 @@ source install/setup.bash
 
 Source the workspace in each terminal after building. For iterative development
 and multiple robots, start a world first and spawn robots into that running
-world. Use integrated bringup when you want a new world, robot and optional
-localization, navigation or manipulation modules together.
+world. Use integrated bringup when you want a robot with optional localization,
+navigation or manipulation modules. Its default `run_world=true` also starts
+Gazebo; set `run_world=false` to reuse the world already running.
 
 ### Option 1: Gazebo world + robot
 
@@ -149,10 +150,11 @@ ros2 launch robotnik_simulation_bringup bringup_complete.launch.py robot:=rbwatc
 ```
 
 For a mobile manipulator, use the
-[MoveIt example](#moveit-compatibility). Bringup starts its own world and robot;
-use the standalone module launch files when adding functionality to an existing
-simulation. See the [bringup guide](../common/robotnik_simulation_bringup/README.md)
-for module selection and arguments.
+[MoveIt example](#moveit-compatibility). To add another complete robot stack to
+the running world, use bringup with `run_world:=false` and a new `robot_id`.
+See the [shared-world example](../common/robotnik_simulation_bringup/README.md#multiple-robots-in-one-world).
+Use the standalone module launch files when adding functionality to a robot
+that is already spawned.
 
 ## Usage
 

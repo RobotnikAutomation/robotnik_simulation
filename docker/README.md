@@ -125,6 +125,7 @@ The entrypoint translates nonempty settings from `env/robot.env`:
 |---|---|
 | `ROBOT_ID`, `ROBOT`, `ROBOT_MODEL`, `ROBOT_XACRO_PATH` | Instance, family, variant and description |
 | `FRAME_PREFIX`, `ARM_TYPE`, `USE_SIM_TIME` | Frames/joints, arm type and clock |
+| `RUN_WORLD` | Start Gazebo and the clock bridge; false reuses an existing world |
 | `RUN_GAZEBO_GUI`, `USE_NVIDIA_GPU` | Gazebo window and optional PRIME rendering |
 | `RUN_LOCALIZATION`, `RUN_NAVIGATION`, `RUN_MOVEIT` | Independent modules; defaults true, true, false |
 | `RUN_SPAWN_RVIZ`, `SPAWN_RVIZ_CONFIG` | Basic view, omitted when navigation starts |
@@ -135,6 +136,12 @@ Empty values omit arguments. `WORLD_PATH` overrides `WORLD`. Navigation and
 MoveIt enable their own RViz by default; their visual controls are not part of
 the bringup environment interface. To configure them separately, use their
 standalone launches. See the [bringup argument table](../common/robotnik_simulation_bringup/README.md#arguments).
+
+Set `RUN_WORLD=false` when this robot must join a world that is already running.
+The world owner must supply Gazebo and the `/clock` bridge. Robot processes must
+share its ROS domain and Gazebo transport partition. World path, GUI and rendering
+settings apply only to the process that starts the world. See the
+[multi-robot workflow](../common/robotnik_simulation_bringup/README.md#multiple-robots-in-one-world).
 
 `ROBOTNIK_LAUNCH_ARGS`, when nonempty, **replaces** the automatic translation;
 it is not appended. The entrypoint splits it on whitespace, so it is unsuitable

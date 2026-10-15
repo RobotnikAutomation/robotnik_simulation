@@ -35,10 +35,57 @@ ros2 launch robotnik_simulation_bringup bringup_complete.launch.py \
   robot:=rbkairos robot_model:=rbkairos_plus run_moveit:=true
 ```
 
-Bringup starts a new world and spawns the robot. To add functionality to an
-existing session, use the module's own launch instead of starting bringup again.
-For a persistent world with one or more robots, follow the
-[standalone Gazebo workflow](../../robotnik_gazebo_ignition/README.md#quick-start).
+Bringup starts a new world by default. Set `run_world:=false` to spawn another
+robot with its full stack in an existing world. To add a module to a robot
+already spawned, use that module's own launch instead of spawning the robot again.
+
+## Multiple robots in one world
+
+Start the world and its `/clock` bridge once, in a separate terminal:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robotnik_gazebo_ignition spawn_world.launch.py world:=demo use_nvidia_gpu:=true
+```
+
+Then start each robot's stack in its own terminal. For example, RB-Vogui+:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robotnik_simulation_bringup bringup_complete.launch.py \
+  run_world:=false robot_id:=robot_1 robot:=rbvogui robot_model:=rbvogui_plus \
+  run_moveit:=true x:=0.0 y:=0.0
+```
+
+And RB-Kairos+, with its own localization, navigation and manipulation profiles:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robotnik_simulation_bringup bringup_complete.launch.py \
+  run_world:=false robot_id:=robot_2 robot:=rbkairos robot_model:=rbkairos_plus \
+  run_moveit:=true x:=2.0 y:=0.0
+```
+
+Both robot stacks retain the same module options as a normal bringup. Their
+namespaces are `/robot_1` and `/robot_2`, and their frame/joint prefixes default
+to `robot_1_` and `robot_2_`. Use distinct robot IDs, prefixes and spawn positions.
+Use the same ROS domain and Gazebo transport partition for the world and robots.
+The spawner discovers the running world; this workflow assumes a single world
+is active in that Gazebo transport partition.
+
+Keep the world terminal running while either robot is in use. Robot-only bringup
+does not start another Gazebo server, GUI or clock bridge. World path, GUI and
+GPU options have no effect when `run_world=false`; set them on the world launch.
+Closing a robot-only launch stops its ROS processes, but does not delete its
+Gazebo entity. Removing the model or restarting the world is a separate action.
+
+Alternatively, let the first robot's bringup start the world with the default
+`run_world=true`, and set `run_world=false` for subsequent robots. In that case,
+the shared world belongs to the first launch, so keep that launch running.
+
+Spawn coordinates do not override the initial pose in AMCL's robot profile.
+Set each robot's initial map pose in its navigation RViz using **2D Pose Estimate**
+to match its spawn position, or configure the corresponding localization profile.
 
 ## Deployment
 
@@ -46,7 +93,7 @@ All five modules are direct children of `bringup_complete.launch.py`:
 
 | Module | Entry | Started when | Delay |
 |---|---|---|---|
-| [Gazebo world](../../robotnik_gazebo_ignition/README.md#spawn-world) | `spawn_world.launch.py` | Always | None |
+| [Gazebo world](../../robotnik_gazebo_ignition/README.md#spawn-world) | `spawn_world.launch.py` | `run_world=true` | None |
 | [Robot spawn](../../robotnik_gazebo_ignition/README.md#spawn-robot) | `spawn_robot.launch.py` | Always | None |
 | [Localization](../robotnik_simulation_localization/README.md) | `localization.launch.py` | `run_localization=true` and family profile available | 10 s |
 | [Navigation](../robotnik_simulation_navigation/README.md) | `navigation.launch.py` | `run_navigation=true` and family profile available | 15 s |
@@ -78,7 +125,7 @@ is made at startup and does not close windows belonging to other sessions.
 
 ## Arguments
 
-All 21 arguments are optional:
+All 22 arguments are optional:
 
 | Argument | Default | Effect |
 |---|---|---|
@@ -89,16 +136,17 @@ All 21 arguments are optional:
 | `frame_prefix` | `<robot_id>_` | Prefix for TF frames and joints |
 | `arm_type` | `ur10e` | Arm type passed to spawn and MoveIt |
 | `use_sim_time` | `true` | Clock selection passed to the modules |
-| `run_gazebo_gui` | `true` | Forward GUI activation to spawn_world |
-| `use_nvidia_gpu` | `false` | Forward [rendering selection](../../robotnik_gazebo_ignition/README.md#nvidia-prime-rendering) to spawn_world |
+| `run_world` | `true` | Start Gazebo and `/clock`; false reuses an existing world |
+| `run_gazebo_gui` | `true` | Forward GUI activation when starting the world |
+| `use_nvidia_gpu` | `false` | Forward [rendering selection](../../robotnik_gazebo_ignition/README.md#nvidia-prime-rendering) when starting the world |
 | `run_localization` | `true` | Request localization |
 | `run_navigation` | `true` | Request navigation |
 | `run_moveit` | `false` | Request MoveIt for a matching manipulation variant |
 | `run_spawn_rviz` | `true` | Request the basic view when navigation is not started |
 | `spawn_rviz_config` | Empty | Basic RViz override passed to spawn; empty selects its default |
 | `low_performance_simulation` | `true` | Sensor simulation settings passed to spawn |
-| `world` | `demo` | Built-in world name passed to spawn_world |
-| `world_path` | `robotnik_gazebo_ignition/worlds/<world>.world` | Override the world selected by name |
+| `world` | `demo` | Built-in world name used when `run_world=true` |
+| `world_path` | `robotnik_gazebo_ignition/worlds/<world>.world` | Override the world file when `run_world=true` |
 | `x` | `0.0` | Initial robot X coordinate, in metres |
 | `y` | `0.0` | Initial robot Y coordinate, in metres |
 | `z` | `0.0` | Initial robot Z coordinate, in metres |

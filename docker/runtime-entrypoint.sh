@@ -82,6 +82,7 @@ main() {
     append_launch_arg "robot" "${ROBOT:-}"
     append_launch_arg "robot_model" "${ROBOT_MODEL:-}"
     append_launch_arg "robot_xacro_path" "${ROBOT_XACRO_PATH:-}"
+    append_launch_arg "run_world" "${RUN_WORLD:-}"
     append_launch_arg "run_gazebo_gui" "${RUN_GAZEBO_GUI:-}"
     append_launch_arg "use_nvidia_gpu" "${USE_NVIDIA_GPU:-}"
     append_launch_arg "low_performance_simulation" "${LOW_PERFORMANCE_SIMULATION:-}"
