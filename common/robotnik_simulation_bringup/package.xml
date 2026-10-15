@@ -11,15 +11,15 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>pointcloud_to_laserscan</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
   <exec_depend>robotnik_description</exec_depend>
   <exec_depend>robotnik_gazebo_ignition</exec_depend>
-  <exec_depend>robotnik_common</exec_depend>
   <exec_depend>robotnik_simulation_localization</exec_depend>
   <exec_depend>robotnik_simulation_navigation</exec_depend>
+  <exec_depend>robotnik_simulation_robots</exec_depend>
   <exec_depend>robotnik_simulation_moveit</exec_depend>
-  <exec_depend>rviz2</exec_depend>
-  <exec_depend>teleop_panel</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
