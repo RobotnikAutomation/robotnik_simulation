@@ -2,13 +2,17 @@
 
 This directory contains the Docker files used to run `robotnik_simulation`.
 
-The simulation configuration is defined in:
+The simulation configuration is defined in [env/robot.env](../env/robot.env).
+
+Edit that file to choose the robot, world, Gazebo rendering, basic RViz and
+module activation before launching the container. The file defaults to
+`rbwatcher`, whereas the standalone bringup default is `rbsummit`. NVIDIA PRIME
+is false in both. Changes take effect when the entrypoint runs again; recreate
+the container after editing the mounted file, without rebuilding the image:
 
 ```bash
-../env/robot.env
+docker compose -f docker/docker-compose.yaml up -d --force-recreate
 ```
-
-Edit that file to choose the robot, world, GUI, RViz and other bringup options before launching the container.
 
 ## Workspace model
 
@@ -37,7 +41,8 @@ That means:
 
 ## 1. Run the published image
 
-Use this option when the image is already published in Docker Hub or another registry.
+Use this option when the image is available to you in Docker Hub or another registry. Replace the
+example image tag with the release you intend to run.
 
 From the repository root:
 
@@ -89,6 +94,54 @@ You can also build and launch in a single step:
 ```bash
 LOCAL_UID=$(id -u) LOCAL_GID=$(id -g) docker compose -f docker/docker-compose.yaml up --build
 ```
+
+## NVIDIA GPU
+
+GPU access and PRIME device selection are separate settings:
+
+1. Expose the NVIDIA devices using both Compose files. The host driver and
+   NVIDIA Container Toolkit must already support GPU access from Docker.
+2. On hybrid systems, set `USE_NVIDIA_GPU=true` in `env/robot.env` to request
+   NVIDIA PRIME rendering for Gazebo. Its default is **false**.
+
+```bash
+docker compose -f docker/docker-compose.yaml -f docker/docker-compose.gpu.yaml up
+```
+
+For a registry image, prepend the same `ROBOTNIK_SIMULATION_IMAGE` assignment
+used above. Use the same pair of `-f` options for subsequent `up`, `build` or
+`down` commands for that session.
+
+`USE_NVIDIA_GPU=true` applies PRIME to the Gazebo server and GUI only, including
+server-side sensors without a GUI. It does not expose devices, install drivers,
+select RViz's GPU or force software rendering when false. See the
+[Gazebo rendering guide](../robotnik_gazebo_ignition/README.md#nvidia-prime-rendering).
+
+## Runtime arguments
+
+The entrypoint translates nonempty settings from `env/robot.env`:
+
+| Settings | Launch options |
+|---|---|
+| `ROBOT_ID`, `ROBOT`, `ROBOT_MODEL`, `ROBOT_XACRO_PATH` | Instance, family, variant and description |
+| `FRAME_PREFIX`, `ARM_TYPE`, `USE_SIM_TIME` | Frames/joints, arm type and clock |
+| `RUN_GAZEBO_GUI`, `USE_NVIDIA_GPU` | Gazebo window and optional PRIME rendering |
+| `RUN_LOCALIZATION`, `RUN_NAVIGATION`, `RUN_MOVEIT` | Independent modules; defaults true, true, false |
+| `RUN_SPAWN_RVIZ`, `SPAWN_RVIZ_CONFIG` | Basic view, omitted when navigation starts |
+| `LOW_PERFORMANCE_SIMULATION`, `RUN_MAPPING` | Sensor performance settings and localization mode |
+| `WORLD`, `WORLD_PATH`, `X`, `Y`, `Z` | World selection and spawn coordinates |
+
+Empty values omit arguments. `WORLD_PATH` overrides `WORLD`. Navigation and
+MoveIt enable their own RViz by default; their visual controls are not part of
+the bringup environment interface. To configure them separately, use their
+standalone launches. See the [bringup argument table](../common/robotnik_simulation_bringup/README.md#arguments).
+
+`ROBOTNIK_LAUNCH_ARGS`, when nonempty, **replaces** the automatic translation;
+it is not appended. The entrypoint splits it on whitespace, so it is unsuitable
+for argument values containing spaces. `ROBOTNIK_LAUNCH_PACKAGE` and
+`ROBOTNIK_LAUNCH_FILE` select the entrypoint; supply matching explicit arguments
+when selecting a different launch. `RUNTIME_AUTOSTART=false` keeps the container
+running without starting simulation.
 
 ## 3. Daily workflow
 
@@ -145,13 +198,19 @@ docker compose -f docker/docker-compose.yaml down
 To remove the local image:
 
 ```bash
-docker rmi robotnik/simulation-gz:jazzy
+docker rmi robotnik_simulation:jazzy
 ```
 
-If you are using a published image name instead of the default local tag, remove that specific image tag instead.
+If you selected a registry image, remove that exact tag instead, for example
+`robotnik/simulation-gz:jazzy`. The default local tag comes from the Compose file.
 
 ## Notes
 
 - Changing `../env/robot.env` does not require rebuilding the image.
 - Changing source code, dependencies, manifests or `docker/Dockerfile` does require rebuilding the image.
 - For NVIDIA systems, use `docker/docker-compose.gpu.yaml` together with the main compose file.
+
+Standalone commands in a `docker exec` shell use CLI arguments, not the file
+loaded by the original entrypoint. For example, a separately started world
+needs its own `use_nvidia_gpu:=true` argument if PRIME offload is wanted.
+Do not start another world/robot bringup while the integrated session is active.
