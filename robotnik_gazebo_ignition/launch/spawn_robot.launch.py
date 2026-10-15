@@ -190,7 +190,10 @@ def launch_setup(context, params):
     new_controllers = extract_controllers_from_yaml(path)
 
     # ROS2 control
-    controllers =  ['--controller-manager-timeout', '60', '--service-call-timeout', '60', 'joint_state_broadcaster']
+    controllers =  ['--controller-manager-timeout', '60',
+                    '--service-call-timeout', '60',
+                    '--unload-on-kill',
+                    'joint_state_broadcaster']
     # Replace default joint_state_broadcaster by the one defined in the specific
     # ros2_control.yaml for the robot model
     if 'joint_state_broadcaster' in new_controllers:
@@ -216,6 +219,7 @@ def launch_setup(context, params):
     rbcar_joint_state_broadcaster = [
         '--controller-manager-timeout', '60',
         '--service-call-timeout', '60',
+        '--unload-on-kill',
         'joint_state_broadcaster',
     ]
     ret.append(Node(

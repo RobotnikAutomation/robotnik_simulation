@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.9">
-  <world name='robotnik_simple'>
+  <world name='lightweight_scene'>
     <physics type='ode'>
       <max_step_size>0.02</max_step_size>
       <real_time_factor>1.0</real_time_factor>

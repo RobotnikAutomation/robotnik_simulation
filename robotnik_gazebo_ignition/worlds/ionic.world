@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 
 <sdf version="1.9">
-  <world name="industrial-warehouse">
+  <world name="ionic">
     <physics name="fast" type="ignored">
       <max_step_size>0.02</max_step_size>
       <real_time_factor>1</real_time_factor>

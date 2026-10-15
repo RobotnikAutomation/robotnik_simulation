@@ -37,6 +37,60 @@ This document collects the operational notes that are useful after the initial s
 - Confirm that the Gazebo bridges are active and that the robot was spawned successfully.
 - If you launched only the world, remember that robot-specific topics do not exist until `spawn_robot.launch.py` completes.
 
+### Gazebo server remains alive after closing the simulation
+
+Gazebo Sim runs the server and the GUI as separate processes. Closing the GUI, or interrupting only part of the launch tree, may leave the Gazebo server running in the background.
+
+When this happens, previously spawned robot models can remain loaded in the world. If those models include `gz_ros2_control`, Gazebo-side ROS 2 control nodes such as `controller_manager` and `gz_ros_control` may still appear in the ROS graph even after closing the simulation terminal.
+
+Typical symptoms:
+
+```bash
+ros2 node list | grep -E "controller_manager|gz_ros_control"
+```
+
+still shows nodes such as:
+
+```text
+/<robot_id>/controller_manager
+/<robot_id>/gz_ros_control
+```
+
+or a new empty world unexpectedly contains robots from a previous simulation run.
+
+Check whether a Gazebo server is still running:
+
+```bash
+ps -ef | grep -E "gz sim|ign gazebo|ruby.*gz.*sim" | grep -v grep
+```
+
+You can also check whether Gazebo world services are still available:
+
+```bash
+gz service -l | grep /world/
+```
+
+If the Gazebo server is still running and you want to stop the simulation completely, use the cleanup helper:
+
+```bash
+ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh
+```
+
+If common ROS simulation helper processes also remain, use:
+
+```bash
+ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh --all
+```
+
+Use `--force` only if the graceful shutdown does not stop the remaining processes:
+
+```bash
+ros2 run robotnik_gazebo_ignition stop_gazebo_simulation.sh --force
+```
+
+Note that this helper is intended for development cleanup. It stops lingering Gazebo simulation processes and, with `--all`, common ROS simulation helper processes. Do not use it if you are intentionally running another Gazebo simulation in the same machine.
+
+
 ## RViz and MoveIt issues
 
 ### RViz opens without the expected Robotnik layout or teleoperation panel
