@@ -1,8 +1,0 @@
----
-/**:
-  amcl:
-    ros__parameters:
-      robot_model_type: nav2_amcl::DifferentialMotionModel
-      scan_topic: localization/scan
-      laser_max_range: 25.0
-      laser_min_range: 0.05

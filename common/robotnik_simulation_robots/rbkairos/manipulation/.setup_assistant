@@ -1,0 +1,26 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: robotnik_description
+    relative_path: robots/rbkairos/rbkairos_plus.urdf.xacro
+    xacro_args: prefix:=robot_
+  srdf:
+    relative_path: config/rbkairos_plus.srdf
+  package_settings:
+    author_name: "Robotnik Developers\n"
+    author_email: ros-developers@robotnik.es
+    generated_timestamp: 1774953748
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
