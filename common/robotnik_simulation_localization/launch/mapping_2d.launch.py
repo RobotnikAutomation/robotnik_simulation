@@ -31,17 +31,21 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
 from launch_ros.actions import PushRosNamespace
-from robotnik_common.launch import ConfigFile
+from launch_ros.parameter_descriptions import ParameterFile
 
 def _resolve_slam_toolbox_config(context):
     robot = LaunchConfiguration("robot").perform(context)
-    profile_config = os.path.join(
-        FindPackageShare("robotnik_simulation_profiles").perform(context),
-        robot,
-        "localization",
-        "slam_toolbox.yaml",
-    )
-    if os.path.exists(profile_config):
+    if robot:
+        profile_config = os.path.join(
+            FindPackageShare("robotnik_simulation_robots").perform(context),
+            robot,
+            "localization",
+            "slam_toolbox.yaml",
+        )
+        if not os.path.isfile(profile_config):
+            raise FileNotFoundError(
+                f"SLAM configuration for robot '{robot}' was not found at {profile_config}."
+            )
         return profile_config
 
     return os.path.join(
@@ -52,10 +56,10 @@ def _resolve_slam_toolbox_config(context):
 
 def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")
-    use_sim = LaunchConfiguration("use_sim", default="true")
+    use_sim_time = LaunchConfiguration("use_sim_time", default="true")
     slam_toolbox_config = _resolve_slam_toolbox_config(context)
 
-    slam_toolbox_params = ConfigFile(slam_toolbox_config)
+    slam_toolbox_params = ParameterFile(slam_toolbox_config, allow_substs=True)
 
     slam_toolbox_mapping = Node(
         package='slam_toolbox',
@@ -65,7 +69,7 @@ def _launch_setup(context, *_args, **_kwargs):
         parameters=[
             slam_toolbox_params,
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'use_lifecycle_manager': True,
             }
         ],
@@ -81,7 +85,7 @@ def _launch_setup(context, *_args, **_kwargs):
             output='screen',
             parameters=[
             {
-                'use_sim_time': use_sim
+                'use_sim_time': use_sim_time
             }]
         )
 
@@ -92,7 +96,7 @@ def _launch_setup(context, *_args, **_kwargs):
         output='screen',
         parameters=[
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'autostart': False,
                 'node_names': [
                     'slam_toolbox_mapping',
@@ -121,14 +125,14 @@ def generate_launch_description():
             description="Name for launch and config resources"
         ),
         DeclareLaunchArgument(
-            "use_sim",
+            "use_sim_time",
             default_value="true",
-            description="Enable simulation"
+            description="Use simulation time"
         ),
         DeclareLaunchArgument(
             "robot",
-            default_value="rbwatcher",
-            description="Robot profile used to resolve SLAM config"
+            default_value="",
+            description="Optional robot profile used to resolve SLAM config"
         ),
         DeclareLaunchArgument(
             "frame_prefix",

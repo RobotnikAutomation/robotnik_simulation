@@ -40,14 +40,14 @@ def generate_launch_description():
             description="Name for launch and config resources"
         ),
         DeclareLaunchArgument(
-            "use_sim",
+            "use_sim_time",
             default_value="true",
-            description="Enable simulation"
+            description="Use simulation time"
         ),
         DeclareLaunchArgument(
             "robot",
-            default_value="rbwatcher",
-            description="Robot profile used to resolve localization configs"
+            default_value="",
+            description="Optional robot profile used to resolve localization configs"
         ),
         DeclareLaunchArgument(
             "frame_prefix",
@@ -62,7 +62,7 @@ def generate_launch_description():
     ]
 
     robot_id = LaunchConfiguration("robot_id")
-    use_sim = LaunchConfiguration("use_sim")
+    use_sim_time = LaunchConfiguration("use_sim_time")
     robot = LaunchConfiguration("robot")
     frame_prefix = LaunchConfiguration("frame_prefix")
     run_mapping = LaunchConfiguration("run_mapping")
@@ -75,7 +75,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_id': robot_id,
-            'use_sim': use_sim,
+            'use_sim_time': use_sim_time,
             'robot': robot,
             'frame_prefix': frame_prefix,
         }.items(),
@@ -90,7 +90,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_id': robot_id,
-            'use_sim': use_sim,
+            'use_sim_time': use_sim_time,
             'robot': robot,
             'frame_prefix': frame_prefix,
         }.items(),
@@ -105,7 +105,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_id': robot_id,
-            'use_sim': use_sim,
+            'use_sim_time': use_sim_time,
             'robot': robot,
             'frame_prefix': frame_prefix,
         }.items(),
@@ -113,9 +113,9 @@ def generate_launch_description():
     )
 
     group = GroupAction([
-        localization_scan,
-        localization_2d,
-        mapping_2d
+        GroupAction([localization_scan], scoped=True),
+        GroupAction([localization_2d], scoped=True),
+        GroupAction([mapping_2d], scoped=True)
     ])
 
     return LaunchDescription(declared_arguments + [group])

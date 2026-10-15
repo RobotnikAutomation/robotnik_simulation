@@ -24,98 +24,39 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import yaml
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node, PushRosNamespace
 from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
-from robotnik_common.launch import ConfigFile, RewrittenYaml
-
-
-_AMCL_OVERRIDE_KEYS = {
-    "robot_model_type",
-    "scan_topic",
-    "alpha5",
-    "laser_min_range",
-    "laser_max_range",
-}
-_AMCL_REQUIRED_OVERRIDE_KEYS = {
-    "robot_model_type",
-    "scan_topic",
-}
-_AMCL_PARAMS_ROOT = "/**.amcl.ros__parameters"
-
-
-def _resolve_amcl_base_config(context):
-    return os.path.join(
-        FindPackageShare("robotnik_simulation_localization").perform(context),
-        "config",
-        "amcl.yaml",
-    )
-
-
-def _resolve_amcl_override_config(context):
-    robot = LaunchConfiguration("robot").perform(context)
-    profile_config = os.path.join(
-        FindPackageShare("robotnik_simulation_profiles").perform(context),
-        robot,
-        "localization",
-        "amcl.yaml",
-    )
-    if not os.path.exists(profile_config):
-        raise FileNotFoundError(
-            f"AMCL override file for robot '{robot}' was not found at {profile_config}."
-        )
-    return profile_config
-
-
-def _load_amcl_override_rewrites(override_config):
-    with open(override_config, "r", encoding="utf-8") as config_file:
-        config = yaml.safe_load(config_file) or {}
-
-    try:
-        params = config["/**"]["amcl"]["ros__parameters"]
-    except KeyError as exc:
-        raise ValueError(
-            f"AMCL override file '{override_config}' must define /**/amcl/ros__parameters."
-        ) from exc
-
-    invalid_keys = sorted(set(params) - _AMCL_OVERRIDE_KEYS)
-    if invalid_keys:
-        raise ValueError(
-            f"AMCL override file '{override_config}' contains unsupported keys: "
-            f"{', '.join(invalid_keys)}."
-        )
-
-    missing_keys = sorted(_AMCL_REQUIRED_OVERRIDE_KEYS - set(params))
-    if missing_keys:
-        raise ValueError(
-            f"AMCL override file '{override_config}' is missing required keys: "
-            f"{', '.join(missing_keys)}."
-        )
-
-    return {
-        f"{_AMCL_PARAMS_ROOT}.{key}": str(value)
-        for key, value in params.items()
-    }
+from launch_ros.parameter_descriptions import ParameterFile
 
 
 def _resolve_amcl_config(context):
-    base_config = _resolve_amcl_base_config(context)
-    override_config = _resolve_amcl_override_config(context)
-    override_rewrites = _load_amcl_override_rewrites(override_config)
-    rewritten_config = RewrittenYaml(
-        source_file=base_config,
-        param_rewrites=override_rewrites,
-        convert_types=True,
-    )
-    return ConfigFile(rewritten_config)
+    robot = LaunchConfiguration("robot").perform(context)
+    if robot:
+        config_path = os.path.join(
+            FindPackageShare("robotnik_simulation_robots").perform(context),
+            robot,
+            "localization",
+            "amcl.yaml",
+        )
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError(
+                f"AMCL configuration for robot '{robot}' was not found at {config_path}."
+            )
+    else:
+        config_path = os.path.join(
+            FindPackageShare("robotnik_simulation_localization").perform(context),
+            "config",
+            "amcl.yaml",
+        )
+    return ParameterFile(config_path, allow_substs=True)
 
 def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")
-    use_sim = LaunchConfiguration("use_sim")
+    use_sim_time = LaunchConfiguration("use_sim_time")
     frame_prefix = LaunchConfiguration("frame_prefix")
 
     map_file = PathJoinSubstitution([
@@ -132,7 +73,7 @@ def _launch_setup(context, *_args, **_kwargs):
         output='screen',
         parameters=[
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'yaml_filename': map_file,
                 'frame_id': [frame_prefix, 'map']
             }
@@ -147,7 +88,7 @@ def _launch_setup(context, *_args, **_kwargs):
         parameters=[
             amcl_params,
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
             }
         ]
     )
@@ -159,7 +100,7 @@ def _launch_setup(context, *_args, **_kwargs):
         output='screen',
         parameters = [
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'autostart': True,
                 'node_names': [
                     'map_server',
@@ -187,14 +128,14 @@ def generate_launch_description():
             description="Name for launch and config resources"
         ),
         DeclareLaunchArgument(
-            "use_sim",
+            "use_sim_time",
             default_value="true",
-            description="Enable simulation"
+            description="Use simulation time"
         ),
         DeclareLaunchArgument(
             "robot",
-            default_value="rbwatcher",
-            description="Robot profile used to resolve AMCL config"
+            default_value="",
+            description="Optional robot profile used to resolve AMCL config"
         ),
         DeclareLaunchArgument(
             "frame_prefix",

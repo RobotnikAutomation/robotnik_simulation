@@ -11,14 +11,17 @@ from launch_ros.substitutions import FindPackageShare
 
 def _load_scan_pipeline(context):
     robot = LaunchConfiguration("robot").perform(context)
-    profile_config = os.path.join(
-        FindPackageShare("robotnik_simulation_profiles").perform(context),
-        robot,
-        "localization",
-        "localization_scan.yaml",
-    )
-    if os.path.exists(profile_config):
-        config_path = profile_config
+    if robot:
+        config_path = os.path.join(
+            FindPackageShare("robotnik_simulation_robots").perform(context),
+            robot,
+            "localization",
+            "localization_scan.yaml",
+        )
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError(
+                f"Localization scan configuration for robot '{robot}' was not found at {config_path}."
+            )
     else:
         config_path = os.path.join(
             FindPackageShare("robotnik_simulation_localization").perform(context),
@@ -30,10 +33,10 @@ def _load_scan_pipeline(context):
         return yaml.safe_load(config_file) or {}, config_path
 
 
-def _pointcloud_parameters(use_sim, frame_prefix, pcl_config):
+def _pointcloud_parameters(use_sim_time, frame_prefix, pcl_config):
     target_frame = pcl_config.get("target_frame", "base_link")
     return {
-        "use_sim_time": use_sim,
+        "use_sim_time": use_sim_time,
         "target_frame": [frame_prefix, target_frame],
         "transform_tolerance": pcl_config.get("transform_tolerance", 0.2),
         "min_height": pcl_config.get("min_height", 0.0),
@@ -48,9 +51,9 @@ def _pointcloud_parameters(use_sim, frame_prefix, pcl_config):
     }
 
 
-def _build_pointcloud_to_laserscan(use_sim, frame_prefix, output_topic, pcl_config):
+def _build_pointcloud_to_laserscan(use_sim_time, frame_prefix, output_topic, pcl_config):
     input_topic = pcl_config.get("input_topic", "top_laser/points")
-    parameters = _pointcloud_parameters(use_sim, frame_prefix, pcl_config)
+    parameters = _pointcloud_parameters(use_sim_time, frame_prefix, pcl_config)
 
     return [
         GroupAction([
@@ -72,7 +75,7 @@ def _build_pointcloud_to_laserscan(use_sim, frame_prefix, output_topic, pcl_conf
     ]
 
 
-def _build_passthrough(output_topic, passthrough_config):
+def _build_passthrough(use_sim_time, output_topic, passthrough_config):
     input_topic = passthrough_config.get("input_topic", "front_laser/scan")
     return [
         GroupAction([
@@ -83,6 +86,7 @@ def _build_passthrough(output_topic, passthrough_config):
                 name="localization_scan_relay",
                 output="screen",
                 arguments=[input_topic, output_topic],
+                parameters=[{"use_sim_time": use_sim_time}],
                 remappings=[
                     ("tf", "/tf"),
                     ("tf_static", "/tf_static"),
@@ -92,9 +96,10 @@ def _build_passthrough(output_topic, passthrough_config):
     ]
 
 
-def _merge_parameters(frame_prefix, output_topic, merge_config, merge_inputs):
+def _merge_parameters(use_sim_time, frame_prefix, output_topic, merge_config, merge_inputs):
     target_frame = merge_config.get("target_frame", "base_link")
     return {
+        "use_sim_time": use_sim_time,
         "laser_1_topic": merge_inputs[0],
         "laser_2_topic": merge_inputs[1],
         "merged_scan_topic": output_topic,
@@ -124,8 +129,8 @@ def _merge_parameters(frame_prefix, output_topic, merge_config, merge_inputs):
     }
 
 
-def _build_dual_laser_merge(frame_prefix, output_topic, merge_config, merge_inputs):
-    parameters = _merge_parameters(frame_prefix, output_topic, merge_config, merge_inputs)
+def _build_dual_laser_merge(use_sim_time, frame_prefix, output_topic, merge_config, merge_inputs):
+    parameters = _merge_parameters(use_sim_time, frame_prefix, output_topic, merge_config, merge_inputs)
 
     return [
         GroupAction([
@@ -135,6 +140,7 @@ def _build_dual_laser_merge(frame_prefix, output_topic, merge_config, merge_inpu
                 namespace="",
                 package="rclcpp_components",
                 executable="component_container",
+                parameters=[{"use_sim_time": use_sim_time}],
                 composable_node_descriptions=[
                     ComposableNode(
                         package="dual_laser_merger",
@@ -154,7 +160,7 @@ def _build_dual_laser_merge(frame_prefix, output_topic, merge_config, merge_inpu
 
 
 def _launch_setup(context, *_args, **_kwargs):
-    use_sim = LaunchConfiguration("use_sim")
+    use_sim_time = LaunchConfiguration("use_sim_time")
     frame_prefix = LaunchConfiguration("frame_prefix")
     robot = LaunchConfiguration("robot").perform(context)
 
@@ -171,11 +177,11 @@ def _launch_setup(context, *_args, **_kwargs):
 
     if mode == "pointcloud_to_laserscan":
         pcl_config = scan_pipeline.get("pointcloud_to_laserscan", {})
-        return _build_pointcloud_to_laserscan(use_sim, frame_prefix, output_topic, pcl_config)
+        return _build_pointcloud_to_laserscan(use_sim_time, frame_prefix, output_topic, pcl_config)
 
     if mode == "passthrough":
         passthrough_config = scan_pipeline.get("passthrough", {})
-        return _build_passthrough(output_topic, passthrough_config)
+        return _build_passthrough(use_sim_time, output_topic, passthrough_config)
 
     if mode == "merge":
         merge_config = scan_pipeline.get("merge", {})
@@ -189,7 +195,7 @@ def _launch_setup(context, *_args, **_kwargs):
                     )
                 )
             ]
-        return _build_dual_laser_merge(frame_prefix, output_topic, merge_config, merge_inputs)
+        return _build_dual_laser_merge(use_sim_time, frame_prefix, output_topic, merge_config, merge_inputs)
 
     return [
         LogInfo(
@@ -206,14 +212,14 @@ def generate_launch_description():
             description="Name for launch and config resources",
         ),
         DeclareLaunchArgument(
-            "use_sim",
+            "use_sim_time",
             default_value="true",
-            description="Enable simulation",
+            description="Use simulation time",
         ),
         DeclareLaunchArgument(
             "robot",
-            default_value="rbwatcher",
-            description="Robot profile used to resolve localization scan config",
+            default_value="",
+            description="Optional robot profile used to resolve localization scan config",
         ),
         DeclareLaunchArgument(
             "frame_prefix",
