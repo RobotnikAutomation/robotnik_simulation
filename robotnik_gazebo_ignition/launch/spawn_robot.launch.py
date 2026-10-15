@@ -221,7 +221,7 @@ def launch_setup(context, params):
         output='screen',
         parameters=[{'use_sim_time': True}],
         condition=IfCondition(
-            EqualsSubstitution(params['robot_model'], 'rbrobout_plus')
+            EqualsSubstitution(params['robot_model'], 'rbrobout_plus_gripper')
         ),
     ))
 
@@ -232,7 +232,7 @@ def launch_setup(context, params):
         output='screen',
         parameters=[{'use_sim_time': True}],
         condition=IfCondition(
-            EqualsSubstitution(params['robot_model'], 'rbkairos_plus')
+            EqualsSubstitution(params['robot_model'], 'rbkairos_plus_gripper')
         ),
     ))
 
