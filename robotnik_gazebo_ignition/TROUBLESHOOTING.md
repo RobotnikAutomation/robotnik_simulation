@@ -9,7 +9,6 @@ This document collects the operational notes that are useful after the initial s
 - Confirm that the workspace repositories were imported successfully with `vcs` before running `rosdep`.
 - Make sure you are running the command from the workspace root after sourcing `/opt/ros/jazzy/setup.bash`.
 - If the failure is related to missing local source packages such as `robotnik_description`, `robotnik_sensors` or `teleop_panel`, check that those repositories are present under `src/`.
-- If the failure is related to `warehouse_ros_mongo`, note that Jazzy is currently being migrated to `warehouse_ros_sqlite`. The Mongo dependency is intentionally disabled in the current package manifests.
 
 ### Local Robotnik `.deb` packages are not found
 
@@ -47,9 +46,19 @@ This document collects the operational notes that are useful after the initial s
 
 ### MoveIt does not connect or interact correctly
 
-- Confirm that the robot was launched with `robot_id:=robot`.
-- Verify that you are using a supported robot and matching `moveit_config_name`.
+- Match `robot_id`, `frame_prefix`, `robot`, `robot_model`, description and arm
+  arguments with the spawned robot. Examples use `robot_id:=robot`; custom
+  namespaces need runtime validation rather than an automatic model change.
+- Verify that the selected `robot` and `robot_model` have a matching manipulation profile under `robotnik_simulation_robots/<robot>/manipulation/`.
 - If you are using a mobile manipulator, check that `arm_type` matches the robot configuration being launched.
+
+### Unexpected RViz windows
+
+Bringup has no RViz node. Navigation and MoveIt enable their views by default;
+`run_gazebo_gui=false` only hides Gazebo's GUI. To disable a module's view,
+configure its own standalone launch. Basic RViz is only omitted when navigation
+starts through bringup; launching navigation later does not close an existing
+basic window. See the [bringup guide](../common/robotnik_simulation_bringup/README.md).
 
 ## Control issues
 
@@ -64,58 +73,51 @@ This document collects the operational notes that are useful after the initial s
 - Avoid running multiple teleoperation or navigation sources simultaneously unless you are intentionally multiplexing commands.
 - If the robot behaves unpredictably, stop all command sources and restart only the one you want to test.
 
-## GPU verification
+## GPU selection and verification
 
-If you want to check whether NVIDIA is available and whether Gazebo is really using it for rendering, use this quick verification flow. The same checks can be run either on the host or inside the Docker container, depending on where you plan to execute the simulation.
+### Enable PRIME offload through launch
 
-### 1. Verify that the NVIDIA driver is available
+Use the argument provided by spawn_world; do not add rendering environment
+variables to every launch command:
 
-Run:
+```bash
+ros2 launch robotnik_gazebo_ignition spawn_world.launch.py world:=empty use_nvidia_gpu:=true
+```
+
+The same argument works in bringup. It is **false by default**, applies to
+Gazebo server/GUI only and leaves RViz unchanged. For Docker use
+`USE_NVIDIA_GPU=true` together with the
+[GPU Compose overlay](../docker/README.md#nvidia-gpu). See the
+[rendering contract](README.md#nvidia-prime-rendering) for scope and defaults.
+
+### Check device visibility and the actual Gazebo process
 
 ```bash
 nvidia-smi
 ```
 
-If this command fails, NVIDIA is not available in the current environment.
+Check on the host or inside the container where simulation runs. A missing
+command, driver error or missing device indicates a visibility/setup problem
+that the launch flag cannot fix. With Gazebo running, inspect the GPU process
+list, utilization and rendering errors in its logs. Process reporting depends
+on the driver and container setup; no single diagnostic guarantees rendering.
 
-### 2. Check which OpenGL renderer is being used
-
-If `glxinfo` is not available in the current environment, install `mesa-utils` first:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y mesa-utils
-```
-
-Then run:
-
-```bash
-glxinfo | grep "OpenGL renderer"
-```
-
-Typical outcomes:
-
-- `NVIDIA`: Gazebo should be using NVIDIA for OpenGL rendering.
-- `Mesa Intel(...)`: rendering is going through the integrated Intel GPU.
-- `llvmpipe`: rendering is falling back to software mode.
-
-### 3. Hybrid Intel/NVIDIA systems
-
-On hybrid Intel/NVIDIA systems, Gazebo may still render through Intel even if NVIDIA is available. In that case, you can force NVIDIA when launching `spawn_world`:
-
-```bash
-source ~/ros2_ws/install/setup.bash
-__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia \
-  ros2 launch robotnik_gazebo_ignition spawn_world.launch.py world:=empty
-```
+`glxinfo -B`, when available, describes the renderer selected by **glxinfo**.
+Because the PRIME settings are scoped to Gazebo, a separately launched
+`glxinfo` may legitimately show Intel even while Gazebo uses NVIDIA. Likewise,
+`nvidia-smi` succeeding only proves device/driver visibility, not that Gazebo
+created a rendering context on it.
 
 ## Known limitations
 
-- `warehouse_ros_mongo` is intentionally disabled for Jazzy while the MoveIt warehouse integration is being migrated to `warehouse_ros_sqlite`.
 - Some robots in the support table are marked as `Limited` and may still require additional validation or tuning for specific workflows.
-- MoveIt support currently works correctly only with `robot_id:=robot`.
+- Custom MoveIt namespace/prefix substitution has been checked offline; full
+  interactive behavior still needs verification in a running session.
+- Mapping currently needs its scan pipeline started separately and lifecycle
+  activation. See the [localization guide](../common/robotnik_simulation_localization/README.md).
+- Disabling localization does not add an odometry-only navigation fallback.
 
 ## Related
 
 - Main package guide: [`README.md`](README.md)
-- Docker workflow: [`../docker/docker.md`](../docker/docker.md)
+- Docker workflow: [`../docker/README.md`](../docker/README.md)

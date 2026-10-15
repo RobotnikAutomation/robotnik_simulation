@@ -29,7 +29,8 @@ import tempfile
 import yaml
 
 from launch import LaunchDescription
-from launch.actions import OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.event_handlers import OnShutdown
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import EqualsSubstitution
 from launch.substitutions import Command, FindExecutable
@@ -38,9 +39,9 @@ from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.descriptions import ParameterValue
+from launch_ros.parameter_descriptions import ParameterFile
 
 from launch.conditions import IfCondition, UnlessCondition
-from robotnik_common.launch import AddArgumentParser, ConfigFile, ExtendedArgument
 
 
 def load_yaml(package_path, relative_path):
@@ -67,7 +68,7 @@ def launch_setup(context, params):
     robot_description_content = Command([
         FindExecutable(name='xacro'),
         ' ', gazebo_robot_xacro,
-        ' source_robot_xacro_path:=', params['robot_xacro_path'],
+        ' robot_xacro_path:=', params['robot_xacro_path'],
         ' robot:=', params['robot'],
         ' namespace:=', params['robot_id'],
         ' prefix:=', params['frame_prefix'],
@@ -95,6 +96,7 @@ def launch_setup(context, params):
         package='ros_gz_sim',
         executable='create',
         namespace=params['robot_id'],
+        parameters=[{'use_sim_time': params['use_sim_time']}],
         arguments=[
             '-name', params['robot_id'],
             '-topic', "robot_description",
@@ -105,56 +107,6 @@ def launch_setup(context, params):
         ],
         output='screen',
     ))
-
-    # Gazebo bridge
-    # def generate_bridge_yaml(params) -> str:
-    #     robot_id = substitute_param_context(params['robot_id'], context)
-    #     bridge_raw = [
-    #         (f"/{robot_id}/imu/data", f"/{robot_id}/imu/data", "sensor_msgs/msg/Imu", "ignition.msgs.IMU", "GZ_TO_ROS"),
-    #         (f"/{robot_id}/gps/data", f"/{robot_id}/gps/fix", "sensor_msgs/msg/NavSatFix", "ignition.msgs.NavSat", "GZ_TO_ROS"),
-    #     ]
-    #     def add_camera(camera_name):
-    #         bridge_raw.extend([
-    #             (f"/{robot_id}/{camera_name}_camera_color/color/camera_info", f"/{robot_id}/{camera_name}_rgbd_camera/color/camera_info", "sensor_msgs/msg/CameraInfo", "gz.msgs.CameraInfo", "GZ_TO_ROS"),
-    #             (f"/{robot_id}/{camera_name}_camera_color/color/image_raw", f"/{robot_id}/{camera_name}_rgbd_camera/color/image_raw", "sensor_msgs/msg/Image", "gz.msgs.Image", "GZ_TO_ROS"),
-    #         ])
-    #     def add_laser(laser_name):
-    #         bridge_raw.extend([
-    #             (f"/{robot_id}/{laser_name}_laser/scan", f"/{robot_id}/{laser_name}_laser/scan", "sensor_msgs/msg/LaserScan", "gz.msgs.LaserScan", "GZ_TO_ROS"),
-    #         ])
-    #     def add_pointcloud(points_name):
-    #         bridge_raw.extend([
-    #             ( f"/{robot_id}/{points_name}_lidar/scan/points", f"/{robot_id}/{points_name}_laser/points", "sensor_msgs/msg/PointCloud2", "gz.msgs.PointCloudPacked", "GZ_TO_ROS"),
-    #         ])
-
-    #     def add_depth_camera(camera_name):
-    #         bridge_raw.extend([
-    #             (f"/{robot_id}/{camera_name}_camera_depth/depth/camera_info", f"/{robot_id}/{camera_name}_rgbd_camera/depth/camera_info", "sensor_msgs/msg/CameraInfo", "gz.msgs.CameraInfo", "GZ_TO_ROS"),
-    #             (f"/{robot_id}/{camera_name}_camera_depth/depth/image_raw", f"/{robot_id}/{camera_name}_rgbd_camera/depth/image_raw", "sensor_msgs/msg/Image", "gz.msgs.Image", "GZ_TO_ROS"),
-    #         ])
-
-    #     add_camera("front")
-    #     add_camera("rear")
-    #     add_camera("top_ptz")
-    #     #add_depth_camera("front")
-    #     add_laser("front")
-    #     add_laser("rear")
-    #     add_pointcloud("top")
-
-    #     bridge_config = [{"ros_topic_name": ros, "gz_topic_name": gz, "ros_type_name": ros_type, "gz_type_name": gz_type, "direction": direction} for gz, ros, ros_type, gz_type, direction in bridge_raw]
-    #     with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
-    #         yaml.dump(bridge_config, tmp)
-    #         return tmp.name
-
-    # bridge_yaml = generate_bridge_yaml(params)
-    # ret.append(Node(
-    #     package="ros_gz_bridge",
-    #     executable="parameter_bridge",
-    #     parameters=[
-    #         {'config_file': bridge_yaml},
-    #     ],
-    #     namespace=params['robot_id'],
-    # ))
 
     def generate_bridge_yaml(params) -> str:
         robot_id = substitute_param_context(params['robot_id'], context)
@@ -202,7 +154,7 @@ def launch_setup(context, params):
         package="ros_gz_bridge",
         executable="parameter_bridge",
         parameters=[
-            {'config_file': bridge_yaml},
+            {'config_file': bridge_yaml, 'use_sim_time': params['use_sim_time']},
         ],
         namespace=params['robot_id'],
     ))
@@ -227,7 +179,7 @@ def launch_setup(context, params):
 
     def get_ros2_control_yaml_path(params):
         base_path = (
-            Path(FindPackageShare('robotnik_simulation_profiles').perform(context))
+            Path(FindPackageShare('robotnik_simulation_robots').perform(context))
             / substitute_param_context(params['robot'], context)
             / 'control'
         )
@@ -246,12 +198,8 @@ def launch_setup(context, params):
     controllers.extend(new_controllers)
     print("Controllers to be spawned:", controllers)
 
-    robot_controller_config = ConfigFile(path)
-
-    controllers.append('--param-file')
-    controllers.append(
-         robot_controller_config, # type: ignore
-    )
+    # The spawner forwards ROS parameter files to the controllers it loads.
+    robot_controller_config = ParameterFile(path, allow_substs=True)
 
     is_rbcar = EqualsSubstitution(params['robot'], 'rbcar')
 
@@ -260,6 +208,7 @@ def launch_setup(context, params):
         executable='spawner',
         namespace=params['robot_id'],
         arguments=controllers,
+        parameters=[robot_controller_config, {'use_sim_time': params['use_sim_time']}],
         output='screen',
         condition=UnlessCondition(is_rbcar),
     ))
@@ -268,13 +217,13 @@ def launch_setup(context, params):
         '--controller-manager-timeout', '60',
         '--service-call-timeout', '60',
         'joint_state_broadcaster',
-        '--param-file', robot_controller_config,  # type: ignore
     ]
     ret.append(Node(
         package='controller_manager',
         executable='spawner',
         namespace=params['robot_id'],
         arguments=rbcar_joint_state_broadcaster,
+        parameters=[robot_controller_config, {'use_sim_time': params['use_sim_time']}],
         output='screen',
         condition=IfCondition(is_rbcar),
     ))
@@ -283,7 +232,6 @@ def launch_setup(context, params):
         '--controller-manager-timeout', '60',
         '--service-call-timeout', '60',
         'robotnik_base_control',
-        '--param-file', robot_controller_config,  # type: ignore
         '--controller-ros-args', '--ros-args -r ~/tf_odometry:=/tf -r ~/odometry:=~/odom -r ~/reference:=~/cmd_vel',
     ]
     ret.append(Node(
@@ -291,81 +239,57 @@ def launch_setup(context, params):
         executable='spawner',
         namespace=params['robot_id'],
         arguments=rbcar_ackermann_controller,
+        parameters=[robot_controller_config, {'use_sim_time': params['use_sim_time']}],
         output='screen',
         condition=IfCondition(is_rbcar),
     ))
 
-    # Check if rviz config path is modified, if not use default fixed frame
-    rviz_config_default = str(
-        Path(
-            FindPackageShare('robotnik_gazebo_ignition').perform(context)
-        )
-        / 'config'
-        / 'rviz_config.rviz'
-    )
-    use_fixed_frame = False
-    # Determine if fixed frame should be used
-    if isinstance(params['rviz_config'], LaunchConfiguration):
-        rviz_config_value = params['rviz_config'].perform(context)
-        use_fixed_frame = (rviz_config_value == "")
-    else:
-        use_fixed_frame = (params['rviz_config'] == "")
-
-    if use_fixed_frame:
-        params['rviz_config'] = rviz_config_default
-
-    use_sim_time = {"use_sim_time": True}
-
-    # RViz
-    ret.append(Node(
-        package="rviz2",
-        executable="rviz2",
-        namespace=params['robot_id'],
-        arguments=[
-            # Fixed frame
-            ['-f', params['frame_prefix'], 'odom'] if use_fixed_frame else [],
-            # Config file
-            '-d', [params['rviz_config']],
-            # Window name
-            '-t', [params['robot_id'], ' - ', params['robot_model'], ' - navigation RViz'],
-        ],
-        parameters=[
-            use_sim_time,
-            ],
-        condition=IfCondition(params['run_rviz'])
+    ret.append(OpaqueFunction(
+        function=_launch_spawn_rviz, args=[params],
+        condition=IfCondition(params['run_spawn_rviz']),
     ))
-
     return ret
+
+
+def _launch_spawn_rviz(context, params):
+    override = params['spawn_rviz_config'].perform(context)
+    config = ParameterFile(override or PathJoinSubstitution([
+        FindPackageShare('robotnik_gazebo_ignition'), 'config', 'rviz_config.rviz',
+    ]), allow_substs=True)
+    path = str(config.evaluate(context))
+    context.register_event_handler(OnShutdown(
+        on_shutdown=lambda event, context: config.cleanup(),
+    ))
+    robot_id = params['robot_id'].perform(context)
+    model = params['robot_model'].perform(context)
+    return [Node(
+        package='rviz2', executable='rviz2', name='spawn_rviz', namespace=robot_id,
+        arguments=['-d', path, '-t', f'{robot_id} - {model} - basic RViz'],
+        parameters=[{'use_sim_time': params['use_sim_time']}],
+    )]
 
 
 def generate_launch_description():
     raw_args = [
-        ("robot_id", "Unique Robot Identifier", "robot", "ROBOT_ID"),
-        ("robot", "Robot Model Name", "rbwatcher", "ROBOT"),
-        ("robot_model", "Robot Variant or Type", LaunchConfiguration('robot'), "ROBOT_MODEL"),
-        ("robot_xacro_path", "Path to Robot Xacro File", [FindPackageShare('robotnik_description'), '/robots/', LaunchConfiguration('robot'), '/', LaunchConfiguration('robot_model'), '.urdf.xacro'], "ROBOT_XACRO_PATH"),
-        ("frame_prefix", "Prefix of each frame", [LaunchConfiguration('robot_id'), '_'], "FRAME_PREFIX"),
-        ("x", "Initial X Coordinate", "0.0", "X"),
-        ("y", "Initial Y Coordinate", "0.0", "Y"),
-        ("z", "Initial Z Coordinate", "0.0", "Z"),
-        ("arm_type", "Type of robotic arm", "ur10e", "ARM_TYPE"),
-        ("run_rviz", "Run RViz", "True", "RUN_RVIZ"),
-        ("rviz_config", "RViz configuration file", "", "CONFIG_RVIZ"),
-        ("use_sim_time", "Use simulation time", "True", "USE_SIM_TIME"),
-        ("low_performance_simulation", "Enable Low Performance Simulation", "False", "LOW_PERFORMANCE_SIMULATION"),
+        ('robot_id', 'Unique Robot Identifier', 'robot'),
+        ('robot', 'Robot Model Name', 'rbwatcher'),
+        ('robot_model', 'Robot Variant or Type', LaunchConfiguration('robot')),
+        ('robot_xacro_path', 'Path to Robot Xacro File', [FindPackageShare('robotnik_description'), '/robots/', LaunchConfiguration('robot'), '/', LaunchConfiguration('robot_model'), '.urdf.xacro']),
+        ('frame_prefix', 'Prefix of each frame', [LaunchConfiguration('robot_id'), '_']),
+        ('x', 'Initial X Coordinate', '0.0'),
+        ('y', 'Initial Y Coordinate', '0.0'),
+        ('z', 'Initial Z Coordinate', '0.0'),
+        ('arm_type', 'Type of robotic arm', 'ur10e'),
+        ('run_spawn_rviz', 'Run basic RViz', 'true'),
+        ('spawn_rviz_config', 'Basic RViz configuration override', ''),
+        ('use_sim_time', 'Use simulation time', 'True'),
+        ('low_performance_simulation', 'Enable Low Performance Simulation', 'False'),
     ]
 
-    ld = LaunchDescription()
-    add_to_launcher = AddArgumentParser(ld)
-    for arg in raw_args:
-        extended_arg = ExtendedArgument(
-            name=arg[0],
-            description=arg[1],
-            default_value=arg[2],
-            use_env=True,
-            environment=arg[3],
-        )
-        add_to_launcher.add_arg(extended_arg)
-    params = add_to_launcher.process_arg()
+    ld = LaunchDescription([
+        DeclareLaunchArgument(name, description=description, default_value=default)
+        for name, description, default in raw_args
+    ])
+    params = {name: LaunchConfiguration(name) for name, _, _ in raw_args}
     ld.add_action(OpaqueFunction(function=launch_setup, args=[params]))
     return ld

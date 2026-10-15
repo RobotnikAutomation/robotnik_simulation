@@ -11,7 +11,7 @@ Defaults:
   n=3 base_name=rbwatcher dx=2.0 dy=0.0 x0=0.0 y0=0.0 z=0.05 yaw=0.0
 Examples:
   ./spawn_multiple.sh 5 rbwatcher 3.0 0 0 0 0.05 0
-  ./spawn_multiple.sh 4 rbwatcher 0 2.0 -- robot_model:=rbwatcher_slim run_rviz:=true
+  ./spawn_multiple.sh 4 rbwatcher 0 2.0 -- robot_model:=rbwatcher_slim run_spawn_rviz:=true
 EOF
 }
 
@@ -23,7 +23,7 @@ dx="${3:-2.0}"
 dy="${4:-0.0}"
 x0="${5:-0.0}"
 y0="${6:-0.0}"
-run_rviz="${9:-false}"
+run_spawn_rviz="${9:-false}"
 z="${7:-0.05}"
 yaw="${8:-0.0}"
 

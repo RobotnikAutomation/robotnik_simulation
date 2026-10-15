@@ -40,7 +40,7 @@ Panels:
     MaxAngular: 1
     MaxLinear: 1
     Name: Teleop
-    Topic: /robot/robotnik_base_control/cmd_vel_unstamped
+    Topic: /$(var robot_id)/robotnik_base_control/cmd_vel_unstamped
 Visualization Manager:
   Class: ""
   Displays:
