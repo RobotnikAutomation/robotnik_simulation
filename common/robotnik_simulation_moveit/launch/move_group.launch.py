@@ -30,10 +30,9 @@ from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
-from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 from launch.substitutions import Command, FindExecutable
-from ament_index_python.packages import get_package_share_directory
-from robotnik_common.launch import ConfigFile
+from robotnik_simulation_moveit.profiles import resolve_manipulation_profile
 
 
 def load_yaml(package_path, relative_path):
@@ -43,23 +42,27 @@ def load_yaml(package_path, relative_path):
 
 
 def load_config(context, source_file):
-    config_file = ConfigFile(source_file)
-    with open(config_file.perform(context), 'r') as config_stream:
-        return yaml.safe_load(config_stream)
+    config_file = ParameterFile(source_file, allow_substs=True)
+    try:
+        with open(config_file.evaluate(context), 'r') as config_stream:
+            return yaml.safe_load(config_stream)
+    finally:
+        config_file.cleanup()
 
 
 def launch_setup(context, *args, **kwargs):
     robot_id = LaunchConfiguration('robot_id').perform(context)
+    robot = LaunchConfiguration('robot').perform(context)
     robot_model = LaunchConfiguration('robot_model').perform(context)
     robot_xacro_path = LaunchConfiguration('robot_xacro_path').perform(context)
-    moveit_config_name = LaunchConfiguration('moveit_config_name').perform(context)
     arm_type = LaunchConfiguration('arm_type').perform(context)
     frame_prefix = LaunchConfiguration('frame_prefix').perform(context)
     use_sim_time = LaunchConfiguration('use_sim_time').perform(context)
 
-    moveit_config_pkg = get_package_share_directory(moveit_config_name)
-    srdf_path = os.path.join(moveit_config_pkg, 'config', f'{robot_model}.srdf')
-    default_moveit_configs = '/opt/ros/jazzy/share/moveit_configs_utils/'
+    manipulation_config_dir, srdf_path = resolve_manipulation_profile(
+        context, robot, robot_model
+    )
+    default_moveit_configs = FindPackageShare('moveit_configs_utils').perform(context)
 
     robot_description = {
         'robot_description': ParameterValue(
@@ -87,7 +90,7 @@ def launch_setup(context, *args, **kwargs):
     robot_description_kinematics = {
         'robot_description_kinematics': load_config(
             context,
-            os.path.join(moveit_config_pkg, 'config', 'kinematics.yaml'),
+            os.path.join(manipulation_config_dir, 'kinematics.yaml'),
         )
     }
 
@@ -95,11 +98,11 @@ def launch_setup(context, *args, **kwargs):
         'robot_description_planning': {
             **load_config(
                 context,
-                os.path.join(moveit_config_pkg, 'config', 'joint_limits.yaml'),
+                os.path.join(manipulation_config_dir, 'joint_limits.yaml'),
             ),
             **load_config(
                 context,
-                os.path.join(moveit_config_pkg, 'config', 'pilz_cartesian_limits.yaml'),
+                os.path.join(manipulation_config_dir, 'pilz_cartesian_limits.yaml'),
             ),
         }
     }
@@ -124,7 +127,10 @@ def launch_setup(context, *args, **kwargs):
     pilz_industrial_motion_planner_yaml = {
         'pilz_industrial_motion_planner': {
             'default_planner_config': 'PTP',
-            **load_yaml(default_moveit_configs, 'default_configs/pilz_industrial_motion_planner_planning.yaml'),
+            **load_config(
+                context,
+                os.path.join(manipulation_config_dir, 'pilz_industrial_motion_planner_planning.yaml'),
+            ),
         }
     }
 
@@ -147,7 +153,7 @@ def launch_setup(context, *args, **kwargs):
 
     controllers_yaml = load_config(
         context,
-        os.path.join(moveit_config_pkg, 'config', 'moveit_controllers.yaml'),
+        os.path.join(manipulation_config_dir, 'moveit_controllers.yaml'),
     )
 
     trajectory_execution = {
@@ -207,7 +213,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'robot_model',
-            default_value=LaunchConfiguration('robot'),
+            default_value='rbkairos_plus',
             description='Robot Variant or Type',
         ),
         DeclareLaunchArgument(
@@ -217,11 +223,6 @@ def generate_launch_description():
                 LaunchConfiguration('robot'), '/', LaunchConfiguration('robot_model'), '.urdf.xacro',
             ],
             description='Path to Robot Xacro File',
-        ),
-        DeclareLaunchArgument(
-            'moveit_config_name',
-            default_value='rbkairos_moveit_config',
-            description='MoveIt configuration package name',
         ),
         DeclareLaunchArgument(
             'arm_type',

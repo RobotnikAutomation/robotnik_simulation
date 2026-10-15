@@ -24,16 +24,18 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
 import yaml
+import tempfile
+import xml.etree.ElementTree as ET
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.event_handlers import OnShutdown
+from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
-from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 from launch.substitutions import Command, FindExecutable
-from ament_index_python.packages import get_package_share_directory
-from robotnik_common.launch import ConfigFile
+from robotnik_simulation_moveit.profiles import resolve_manipulation_profile
 
 
 def load_yaml(package_path, relative_path):
@@ -43,16 +45,19 @@ def load_yaml(package_path, relative_path):
 
 
 def load_config(context, source_file):
-    config_file = ConfigFile(source_file)
-    with open(config_file.perform(context), 'r') as config_stream:
-        return yaml.safe_load(config_stream)
+    config_file = ParameterFile(source_file, allow_substs=True)
+    try:
+        with open(config_file.evaluate(context), 'r') as config_stream:
+            return yaml.safe_load(config_stream)
+    finally:
+        config_file.cleanup()
 
 
 def launch_setup(context, *args, **kwargs):
     robot_id = LaunchConfiguration('robot_id').perform(context)
+    robot = LaunchConfiguration('robot').perform(context)
     robot_model = LaunchConfiguration('robot_model').perform(context)
     robot_xacro_path = LaunchConfiguration('robot_xacro_path').perform(context)
-    moveit_config_name = LaunchConfiguration('moveit_config_name').perform(context)
     arm_type = LaunchConfiguration('arm_type').perform(context)
     moveit_rviz_config = LaunchConfiguration('moveit_rviz_config').perform(context)
     use_fixed_frame_str = LaunchConfiguration('use_fixed_frame').perform(context)
@@ -60,8 +65,20 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration('use_sim_time').perform(context)
     use_fixed_frame = use_fixed_frame_str.strip().lower() in ('true', '1', 'yes', 'on')
 
-    moveit_config_pkg = get_package_share_directory(moveit_config_name)
-    srdf_path = os.path.join(moveit_config_pkg, 'config', f'{robot_model}.srdf')
+    manipulation_config_dir, srdf_path = resolve_manipulation_profile(
+        context, robot, robot_model
+    )
+    custom_rviz_config = bool(moveit_rviz_config)
+    if not custom_rviz_config:
+        moveit_rviz_config = os.path.join(
+            FindPackageShare('robotnik_simulation_moveit').perform(context), 'config', 'moveit.rviz',
+        )
+    if not os.path.isfile(moveit_rviz_config):
+        raise RuntimeError(
+            f"MoveIt RViz configuration was not found: {moveit_rviz_config}"
+        )
+
+    default_moveit_configs = FindPackageShare('moveit_configs_utils').perform(context)
 
     robot_description = {
         'robot_description': ParameterValue(
@@ -88,17 +105,17 @@ def launch_setup(context, *args, **kwargs):
 
     robot_description_kinematics_raw = load_config(
         context,
-        os.path.join(moveit_config_pkg, 'config', 'kinematics.yaml'),
+        os.path.join(manipulation_config_dir, 'kinematics.yaml'),
     )
     joint_limits = {
         'robot_description_planning': {
             **load_config(
                 context,
-                os.path.join(moveit_config_pkg, 'config', 'joint_limits.yaml'),
+                os.path.join(manipulation_config_dir, 'joint_limits.yaml'),
             ),
             **load_config(
                 context,
-                os.path.join(moveit_config_pkg, 'config', 'pilz_cartesian_limits.yaml'),
+                os.path.join(manipulation_config_dir, 'pilz_cartesian_limits.yaml'),
             ),
         }
     }
@@ -106,19 +123,19 @@ def launch_setup(context, *args, **kwargs):
         'planning_pipelines': ['ompl', 'chomp', 'pilz_industrial_motion_planner', 'stomp'],
         'default_planning_pipeline': 'pilz_industrial_motion_planner',
         'ompl': {
-            **load_yaml('/opt/ros/jazzy/share/moveit_configs_utils/', 'default_configs/ompl_planning.yaml'),
+            **load_yaml(default_moveit_configs, 'default_configs/ompl_planning.yaml'),
         },
         'pilz_industrial_motion_planner': {
-            **load_yaml(
-                '/opt/ros/jazzy/share/moveit_configs_utils/',
-                'default_configs/pilz_industrial_motion_planner_planning.yaml',
+            **load_config(
+                context,
+                os.path.join(manipulation_config_dir, 'pilz_industrial_motion_planner_planning.yaml'),
             ),
         },
         'stomp': {
-            **load_yaml('/opt/ros/jazzy/share/moveit_configs_utils/', 'default_configs/stomp_planning.yaml'),
+            **load_yaml(default_moveit_configs, 'default_configs/stomp_planning.yaml'),
         },
         'chomp': {
-            **load_yaml('/opt/ros/jazzy/share/moveit_configs_utils/', 'default_configs/chomp_planning.yaml'),
+            **load_yaml(default_moveit_configs, 'default_configs/chomp_planning.yaml'),
         },
     }
 
@@ -133,12 +150,48 @@ def launch_setup(context, *args, **kwargs):
 
     use_sim_time = {'use_sim_time': use_sim_time.strip().lower() in ('true', '1', 'yes', 'on')}
 
+    # RViz consumes a CLI path; keep the resolved file alive until shutdown.
+    rviz_config = ParameterFile(moveit_rviz_config, allow_substs=True)
+    rviz_config_path = str(rviz_config.evaluate(context))
+    # Resolve the existing semantic description for this view; do not alter the SRDF
+    # or any configuration passed to move_group.
+    semantic_xml = robot_description_semantic['robot_description_semantic'].evaluate(context)
+    groups = [group.attrib['name'] for group in ET.fromstring(semantic_xml).findall('group')]
+    if not groups:
+        rviz_config.cleanup()
+        raise RuntimeError(f"MoveIt RViz requires at least one planning group in {srdf_path}")
+    generated_config_path = None
+    if not custom_rviz_config:
+        with open(rviz_config_path, encoding='utf-8') as stream:
+            view = yaml.safe_load(stream)
+        for display in view['Visualization Manager']['Displays']:
+            if display.get('Class') == 'moveit_rviz_plugin/MotionPlanning':
+                request = display.setdefault('Planning Request', {})
+                if len(groups) == 1:
+                    request['Planning Group'] = groups[0]
+                else:
+                    request.pop('Planning Group', None)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.rviz', delete=False) as stream:
+            yaml.safe_dump(view, stream, sort_keys=False)
+            generated_config_path = stream.name
+        rviz_config_path = generated_config_path
+
+    def cleanup(event, context):
+        rviz_config.cleanup()
+        if generated_config_path and os.path.exists(generated_config_path):
+            os.unlink(generated_config_path)
+
+    context.register_event_handler(OnShutdown(
+        on_shutdown=cleanup,
+    ))
+
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
+        name='moveit_rviz',
         arguments=[
             *(['-f', f'{frame_prefix}odom'] if use_fixed_frame else []),
-            '-d', ConfigFile(moveit_rviz_config),
+            '-d', rviz_config_path,
             '-t', f'{robot_id} - {robot_model} - manipulation RViz',
         ],
         parameters=[
@@ -168,7 +221,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'robot_model',
-            default_value=LaunchConfiguration('robot'),
+            default_value='rbkairos_plus',
             description='Robot Variant or Type',
         ),
         DeclareLaunchArgument(
@@ -178,11 +231,6 @@ def generate_launch_description():
                 LaunchConfiguration('robot'), '/', LaunchConfiguration('robot_model'), '.urdf.xacro',
             ],
             description='Path to Robot Xacro File',
-        ),
-        DeclareLaunchArgument(
-            'moveit_config_name',
-            default_value='rbkairos_moveit_config',
-            description='MoveIt configuration package name',
         ),
         DeclareLaunchArgument(
             'arm_type',
@@ -201,10 +249,8 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'moveit_rviz_config',
-            default_value=PathJoinSubstitution([
-                FindPackageShare('robotnik_gazebo_ignition'), 'config/moveit_rviz_config.rviz',
-            ]),
-            description='MoveIt RViz configuration file',
+            default_value='',
+            description='RViz override; empty selects the package generic view',
         ),
         DeclareLaunchArgument(
             'use_fixed_frame',
