@@ -16,11 +16,11 @@
         plugin: "nav2_behaviors::DriveOnHeading"
       wait:
         plugin: "nav2_behaviors::Wait"
-      local_frame: robot_odom
-      global_frame: robot_map
-      robot_base_frame: robot_base_link
+      local_frame: $(var frame_prefix)odom
+      global_frame: $(var frame_prefix)map
+      robot_base_frame: $(var frame_prefix)base_link
       transform_tolerance: 0.1
-      use_sim_time: true
+      use_sim_time: $(var use_sim_time)
       simulate_ahead_time: 2.0
       max_rotational_vel: 1.0
       min_rotational_vel: 0.4

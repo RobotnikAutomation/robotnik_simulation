@@ -7,7 +7,7 @@
       min_y_velocity_threshold: 0.001
       min_theta_velocity_threshold: 0.001
       failure_tolerance: 0.3
-      odom_topic: /robot/robotnik_base_control/odom
+      odom_topic: robotnik_base_control/odom
       progress_checker_plugin: "progress_checker"
       goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
       controller_plugins: ["FollowPath"]
@@ -79,11 +79,11 @@
   local_costmap:
     local_costmap:
       ros__parameters:
-        use_sim_time: true
+        use_sim_time: $(var use_sim_time)
         update_frequency: 10.0
         publish_frequency: 5.0
-        global_frame: robot_odom
-        robot_base_frame: robot_base_link
+        global_frame: $(var frame_prefix)odom
+        robot_base_frame: $(var frame_prefix)base_link
         rolling_window: true
         width: 8
         height: 8
@@ -100,7 +100,7 @@
           combination_method: 1
           observation_sources: front_laser
           front_laser:
-            topic: /robot/front_laser/scan
+            topic: /$(var robot_id)/localization/scan
             observation_persistence: 0.5
             expected_update_rate: 10.0
             data_type: "LaserScan"

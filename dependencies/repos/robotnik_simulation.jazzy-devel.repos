@@ -26,14 +26,10 @@
 ---
 repositories:
   # Robotnik repositories
-  robotnik/robotnik_simulation:
-    type: git
-    url: https://github.com/RobotnikAutomation/robotnik_simulation.git
-    version: jazzy-devel
   robotnik/robotnik_description:
     type: git
-    url: https://github.com/RobotnikAutomation/robotnik_description.git
-    version: jazzy-devel
+    url: https://github.com/jlgalanRB/robotnik_description.git
+    version: feat/jazzy/simulator-compatibility
   robotnik/robotnik_sensors:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_sensors.git
@@ -45,10 +41,6 @@ repositories:
   robotnik/robotnik_interfaces:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_interfaces.git
-    version: jazzy-devel
-  robotnik/robotnik_moveit_configs:
-    type: git
-    url: https://github.com/RobotnikAutomation/robotnik_moveit_configs.git
     version: jazzy-devel
   robotnik/robotnik_teleop_panel:
     type: git

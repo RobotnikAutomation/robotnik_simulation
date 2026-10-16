@@ -23,10 +23,13 @@
   <depend>joint_trajectory_controller</depend>
   <depend>rviz2</depend>
 
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
   <exec_depend>ros2_control</exec_depend>
   <exec_depend>ackermann_msgs</exec_depend>
   <exec_depend>ackermann_steering_controller</exec_depend>
   <exec_depend>robotnik_description</exec_depend>
+  <exec_depend>robotnik_simulation_robots</exec_depend>
   <exec_depend>robotnik_sensors</exec_depend>
   <exec_depend>teleop_panel</exec_depend>
   <exec_depend>robotnik_common</exec_depend>

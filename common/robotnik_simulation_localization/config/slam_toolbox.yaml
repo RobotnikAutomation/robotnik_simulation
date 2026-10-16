@@ -12,34 +12,24 @@
       ceres_loss_function: None
 
       # ROS Parameters
-      odom_frame: robot_odom
-      map_frame: robot_map
-      base_frame: robot_base_footprint
+      odom_frame: $(var frame_prefix)odom
+      map_frame: $(var frame_prefix)map
+      base_frame: $(var frame_prefix)base_footprint
       map_name: map
-      scan_topic: /robot/front_laser/scan
+      scan_topic: localization/scan
 
       # localization
       mode: mapping
 
-      # if you'd like to immediately start continuing a map at a given pose
-      # or at the dock, but they are mutually exclusive, if pose is given
-      # will use pose
-      # map_file_name: test_steve
-      # map_start_pose: [0.0, 0.0, 0.0]
-      # map_start_at_dock: true
-
       debug_logging: true
       throttle_scans: 1
-      # if 0 never publishes odometry
       transform_publish_period: 0.02
       map_update_interval: 5.0
       resolution: 0.05
-      # for rastering images
-      max_laser_range: 20.0
+      max_laser_range: 10.0
       minimum_time_interval: 0.5
       transform_timeout: 0.2
       tf_buffer_duration: 30.0
-      # // program needs a larger stack size to serialize large maps
       stack_size_to_use: 40000000
       enable_interactive_mode: true
 
@@ -59,12 +49,12 @@
       loop_match_minimum_response_coarse: 0.35
       loop_match_minimum_response_fine: 0.45
 
-      # Correlation Parameters - Correlation Parameters
+      # Correlation Parameters
       correlation_search_space_dimension: 0.5
       correlation_search_space_resolution: 0.01
       correlation_search_space_smear_deviation: 0.1
 
-      # Correlation Parameters - Loop Closure Parameters
+      # Loop Closure Parameters
       loop_search_space_dimension: 8.0
       loop_search_space_resolution: 0.05
       loop_search_space_smear_deviation: 0.03
@@ -72,7 +62,6 @@
       # Scan Matcher Parameters
       distance_variance_penalty: 0.5
       angle_variance_penalty: 1.0
-
       fine_search_angle_offset: 0.00349
       coarse_search_angle_offset: 0.349
       coarse_angle_resolution: 0.0349

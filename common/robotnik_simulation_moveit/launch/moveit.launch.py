@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -45,7 +45,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'robot_model',
-            default_value=LaunchConfiguration('robot'),
+            default_value='rbkairos_plus',
             description='Robot Variant or Type',
         ),
         DeclareLaunchArgument(
@@ -57,14 +57,14 @@ def generate_launch_description():
             description='Path to Robot Xacro File',
         ),
         DeclareLaunchArgument(
-            'moveit_config_name',
-            default_value='rbkairos_moveit_config',
-            description='MoveIt configuration package name',
-        ),
-        DeclareLaunchArgument(
             'arm_type',
             default_value='ur10e',
             description='Type of robotic arm',
+        ),
+        DeclareLaunchArgument(
+            'frame_prefix',
+            default_value=[LaunchConfiguration('robot_id'), '_'],
+            description='Prefix for TF frames and joint names',
         ),
         DeclareLaunchArgument(
             'use_sim_time',
@@ -78,10 +78,8 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'moveit_rviz_config',
-            default_value=PathJoinSubstitution([
-                FindPackageShare('robotnik_gazebo_ignition'), 'config/moveit_rviz_config.rviz',
-            ]),
-            description='MoveIt RViz configuration file',
+            default_value='',
+            description='RViz override; empty selects the package generic view',
         ),
         DeclareLaunchArgument(
             'use_fixed_frame',
@@ -95,8 +93,8 @@ def generate_launch_description():
         'robot': LaunchConfiguration('robot'),
         'robot_model': LaunchConfiguration('robot_model'),
         'robot_xacro_path': LaunchConfiguration('robot_xacro_path'),
-        'moveit_config_name': LaunchConfiguration('moveit_config_name'),
         'arm_type': LaunchConfiguration('arm_type'),
+        'frame_prefix': LaunchConfiguration('frame_prefix'),
         'use_sim_time': LaunchConfiguration('use_sim_time'),
     }
 
@@ -109,18 +107,23 @@ def generate_launch_description():
         launch_arguments=common_args.items(),
     )
 
-    moveit_rviz = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare('robotnik_simulation_moveit'), 'launch/moveit_rviz.launch.py',
-            ])
-        ),
-        launch_arguments={
-            **common_args,
-            'moveit_rviz_config': LaunchConfiguration('moveit_rviz_config'),
-            'use_fixed_frame': LaunchConfiguration('use_fixed_frame'),
-        }.items(),
-        condition=IfCondition(LaunchConfiguration('run_moveit_rviz')),
+    moveit_rviz = TimerAction(
+        period=1.0,
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    PathJoinSubstitution([
+                        FindPackageShare('robotnik_simulation_moveit'), 'launch/moveit_rviz.launch.py',
+                    ])
+                ),
+                launch_arguments={
+                    **common_args,
+                    'moveit_rviz_config': LaunchConfiguration('moveit_rviz_config'),
+                    'use_fixed_frame': LaunchConfiguration('use_fixed_frame'),
+                }.items(),
+                condition=IfCondition(LaunchConfiguration('run_moveit_rviz')),
+            )
+        ],
     )
 
-    return LaunchDescription(declared_arguments + [move_group, moveit_rviz])
+    return LaunchDescription(declared_arguments + [move_group, GroupAction([moveit_rviz], scoped=True)])

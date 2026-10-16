@@ -23,27 +23,48 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
+
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
-from launch.actions import GroupAction
+from launch_ros.actions import Node, PushRosNamespace
+from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
+from launch_ros.parameter_descriptions import ParameterFile
 
-def generate_launch_description():
 
+def _resolve_amcl_config(context):
+    robot = LaunchConfiguration("robot").perform(context)
+    if robot:
+        config_path = os.path.join(
+            FindPackageShare("robotnik_simulation_robots").perform(context),
+            robot,
+            "localization",
+            "amcl.yaml",
+        )
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError(
+                f"AMCL configuration for robot '{robot}' was not found at {config_path}."
+            )
+    else:
+        config_path = os.path.join(
+            FindPackageShare("robotnik_simulation_localization").perform(context),
+            "config",
+            "amcl.yaml",
+        )
+    return ParameterFile(config_path, allow_substs=True)
+
+def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")
-    use_sim = LaunchConfiguration("use_sim")
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    frame_prefix = LaunchConfiguration("frame_prefix")
 
     map_file = PathJoinSubstitution([
         FindPackageShare('robotnik_simulation_localization'),
         'maps/demo_map/demo_map.yaml'
     ])
 
-    amcl_config = PathJoinSubstitution([
-        FindPackageShare('robotnik_simulation_localization'),
-        'config/amcl.yaml'
-    ])
+    amcl_params = _resolve_amcl_config(context)
 
     map_server = Node(
         package='nav2_map_server',
@@ -52,9 +73,9 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'yaml_filename': map_file,
-                'frame_id': 'robot_map'
+                'frame_id': [frame_prefix, 'map']
             }
         ]
     )
@@ -65,9 +86,9 @@ def generate_launch_description():
         name='amcl',
         output='screen',
         parameters=[
-            amcl_config,
+            amcl_params,
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
             }
         ]
     )
@@ -79,7 +100,7 @@ def generate_launch_description():
         output='screen',
         parameters = [
             {
-                'use_sim_time': use_sim,
+                'use_sim_time': use_sim_time,
                 'autostart': True,
                 'node_names': [
                     'map_server',
@@ -90,9 +111,41 @@ def generate_launch_description():
     )
 
     group = GroupAction([
+        PushRosNamespace(robot_id),
         map_server,
         amcl,
         lifecycle_manager_localization,
     ])
 
-    return LaunchDescription([group])
+    return [group]
+
+def generate_launch_description():
+
+    declared_arguments = [
+        DeclareLaunchArgument(
+            "robot_id",
+            default_value="robot",
+            description="Name for launch and config resources"
+        ),
+        DeclareLaunchArgument(
+            "use_sim_time",
+            default_value="true",
+            description="Use simulation time"
+        ),
+        DeclareLaunchArgument(
+            "robot",
+            default_value="",
+            description="Optional robot profile used to resolve AMCL config"
+        ),
+        DeclareLaunchArgument(
+            "frame_prefix",
+            default_value=[LaunchConfiguration("robot_id"), "_"],
+            description="Prefix for TF frames"
+        ),
+    ]
+
+    group = GroupAction([
+        OpaqueFunction(function=_launch_setup),
+    ])
+
+    return LaunchDescription(declared_arguments + [group])

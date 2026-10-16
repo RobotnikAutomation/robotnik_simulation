@@ -1,4 +1,5 @@
 gz-harmonic
+gz-harmonic
 libgz-sim8-dev
 ros-${ROS_DISTRO}-navigation2
 ros-${ROS_DISTRO}-chomp-motion-planner*

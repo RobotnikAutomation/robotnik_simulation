@@ -1,0 +1,876 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Navigation1/Costmaps1
+        - /Navigation1/Paths1
+      Splitter Ratio: 0.5
+    Tree Height: 268
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Goal Pose1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz_common/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: Localization Scan
+  - Class: teleop_panel/Teleop
+    CommandFrameId: base_link
+    CommandMessageType: Twist
+    MaxAngular: 1
+    MaxLinear: 1
+    Name: Teleop
+    Topic: /robot_1/robotnik_base_control/cmd_vel_unstamped
+  - Class: nav2_rviz_plugins/Navigation 2
+    Name: Navigation 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz_common/Group
+      Displays:
+        - Alpha: 1
+          Class: rviz_default_plugins/RobotModel
+          Collision Enabled: false
+          Description File: ""
+          Description Source: Topic
+          Description Topic:
+            Depth: 5
+            Durability Policy: Transient Local
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: robot_description
+          Enabled: true
+          Links:
+            All Links Enabled: true
+            Expand Joint Details: false
+            Expand Link Details: false
+            Expand Tree: false
+            Link Tree Style: Links in Alphabetic Order
+            robot_1_back_left_base_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_back_left_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_back_right_base_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_back_right_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_base_docking_contact:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_base_footprint:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_base_logos_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_battery_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_chassis_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_laser_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_laser_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_left_base_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_left_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_rgbd_camera_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_color_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_color_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_depth_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_depth_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_infra1_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_infra1_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_infra2_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_infra2_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_front_rgbd_camera_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_right_base_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_front_right_wheel:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_imu_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_imu_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_leds_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_rear_laser_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+            robot_1_rear_laser_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_base_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_color_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_color_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_depth_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_depth_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_infra1_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_infra1_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_infra2_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_infra2_optical_frame:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+            robot_1_rear_rgbd_camera_link:
+              Alpha: 1
+              Show Axes: false
+              Show Trail: false
+              Value: true
+          Mass Properties:
+            Inertia: false
+            Mass: false
+          Name: RobotModel
+          TF Prefix: ""
+          Update Interval: 0
+          Value: true
+          Visual Enabled: true
+        - Class: rviz_default_plugins/TF
+          Enabled: true
+          Filter (blacklist): ""
+          Filter (whitelist): ""
+          Frame Timeout: 15
+          Frames:
+            All Enabled: true
+            robot_1_back_left_base_wheel:
+              Value: true
+            robot_1_back_left_wheel:
+              Value: true
+            robot_1_back_right_base_wheel:
+              Value: true
+            robot_1_back_right_wheel:
+              Value: true
+            robot_1_base_docking_contact:
+              Value: true
+            robot_1_base_footprint:
+              Value: true
+            robot_1_base_link:
+              Value: true
+            robot_1_base_logos_link:
+              Value: true
+            robot_1_battery_link:
+              Value: true
+            robot_1_chassis_link:
+              Value: true
+            robot_1_front_laser_base_link:
+              Value: true
+            robot_1_front_laser_link:
+              Value: true
+            robot_1_front_laser_link_calibrated:
+              Value: true
+            robot_1_front_left_base_wheel:
+              Value: true
+            robot_1_front_left_wheel:
+              Value: true
+            robot_1_front_rgbd_camera_base_link:
+              Value: true
+            robot_1_front_rgbd_camera_color_frame:
+              Value: true
+            robot_1_front_rgbd_camera_color_optical_frame:
+              Value: true
+            robot_1_front_rgbd_camera_depth_frame:
+              Value: true
+            robot_1_front_rgbd_camera_depth_optical_frame:
+              Value: true
+            robot_1_front_rgbd_camera_infra1_frame:
+              Value: true
+            robot_1_front_rgbd_camera_infra1_optical_frame:
+              Value: true
+            robot_1_front_rgbd_camera_infra2_frame:
+              Value: true
+            robot_1_front_rgbd_camera_infra2_optical_frame:
+              Value: true
+            robot_1_front_rgbd_camera_link:
+              Value: true
+            robot_1_front_right_base_wheel:
+              Value: true
+            robot_1_front_right_wheel:
+              Value: true
+            robot_1_imu_base_link:
+              Value: true
+            robot_1_imu_link:
+              Value: true
+            robot_1_leds_link:
+              Value: true
+            robot_1_map:
+              Value: true
+            robot_1_odom:
+              Value: true
+            robot_1_rear_laser_base_link:
+              Value: true
+            robot_1_rear_laser_link:
+              Value: true
+            robot_1_rear_laser_link_calibrated:
+              Value: true
+            robot_1_rear_rgbd_camera_base_link:
+              Value: true
+            robot_1_rear_rgbd_camera_color_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_color_optical_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_depth_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_depth_optical_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_infra1_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_infra1_optical_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_infra2_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_infra2_optical_frame:
+              Value: true
+            robot_1_rear_rgbd_camera_link:
+              Value: true
+          Marker Scale: 1
+          Name: TF
+          Show Arrows: true
+          Show Axes: true
+          Show Names: false
+          Tree:
+            robot_1_map:
+              robot_1_odom:
+                robot_1_base_footprint:
+                  robot_1_base_link:
+                    robot_1_back_left_base_wheel:
+                      robot_1_back_left_wheel:
+                        {}
+                    robot_1_back_right_base_wheel:
+                      robot_1_back_right_wheel:
+                        {}
+                    robot_1_chassis_link:
+                      robot_1_base_docking_contact:
+                        {}
+                      robot_1_base_logos_link:
+                        {}
+                      robot_1_battery_link:
+                        {}
+                      robot_1_leds_link:
+                        {}
+                    robot_1_front_laser_base_link:
+                      robot_1_front_laser_link:
+                        robot_1_front_laser_link_calibrated:
+                          {}
+                    robot_1_front_left_base_wheel:
+                      robot_1_front_left_wheel:
+                        {}
+                    robot_1_front_rgbd_camera_base_link:
+                      robot_1_front_rgbd_camera_link:
+                        robot_1_front_rgbd_camera_color_frame:
+                          robot_1_front_rgbd_camera_color_optical_frame:
+                            {}
+                        robot_1_front_rgbd_camera_depth_frame:
+                          robot_1_front_rgbd_camera_depth_optical_frame:
+                            {}
+                        robot_1_front_rgbd_camera_infra1_frame:
+                          robot_1_front_rgbd_camera_infra1_optical_frame:
+                            {}
+                        robot_1_front_rgbd_camera_infra2_frame:
+                          robot_1_front_rgbd_camera_infra2_optical_frame:
+                            {}
+                    robot_1_front_right_base_wheel:
+                      robot_1_front_right_wheel:
+                        {}
+                    robot_1_imu_base_link:
+                      robot_1_imu_link:
+                        {}
+                    robot_1_rear_laser_base_link:
+                      robot_1_rear_laser_link:
+                        robot_1_rear_laser_link_calibrated:
+                          {}
+                    robot_1_rear_rgbd_camera_base_link:
+                      robot_1_rear_rgbd_camera_link:
+                        robot_1_rear_rgbd_camera_color_frame:
+                          robot_1_rear_rgbd_camera_color_optical_frame:
+                            {}
+                        robot_1_rear_rgbd_camera_depth_frame:
+                          robot_1_rear_rgbd_camera_depth_optical_frame:
+                            {}
+                        robot_1_rear_rgbd_camera_infra1_frame:
+                          robot_1_rear_rgbd_camera_infra1_optical_frame:
+                            {}
+                        robot_1_rear_rgbd_camera_infra2_frame:
+                          robot_1_rear_rgbd_camera_infra2_optical_frame:
+                            {}
+          Update Interval: 0
+          Value: true
+      Enabled: true
+      Name: Robot
+    - Class: rviz_common/Group
+      Displays:
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz_default_plugins/LaserScan
+          Color: 255; 255; 255
+          Color Transformer: AxisColor
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 0
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: FrontLaserScan
+          Position Transformer: XYZ
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: front_laser/scan
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz_default_plugins/LaserScan
+          Color: 255; 255; 255
+          Color Transformer: AxisColor
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 0
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: RearLaserScan
+          Position Transformer: XYZ
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: rear_laser/scan
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz_default_plugins/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: AxisColor
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 0
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: TopPointCloud
+          Position Transformer: XYZ
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: top_laser/points
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz_default_plugins/Image
+          Enabled: false
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: FrontCameraImage
+          Normalize Range: true
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: front_rgbd_camera/color/image_raw
+          Value: false
+      Enabled: true
+      Name: Sensors
+    - Class: rviz_common/Group
+      Displays:
+        - Alpha: 0.699999988079071
+          Binary representation: false
+          Binary threshold: 100
+          Class: rviz_default_plugins/Map
+          Color Scheme: map
+          Draw Behind: false
+          Enabled: true
+          Name: Map
+          Topic:
+            Depth: 5
+            Durability Policy: Transient Local
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: map
+          Update Topic:
+            Depth: 5
+            Durability Policy: Transient Local
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: map_updates
+          Use Timestamp: false
+          Value: true
+        - Class: rviz_common/Group
+          Displays:
+            - Alpha: 0.699999988079071
+              Binary representation: false
+              Binary threshold: 100
+              Class: rviz_default_plugins/Map
+              Color Scheme: costmap
+              Draw Behind: false
+              Enabled: true
+              Name: Global Costmap
+              Topic:
+                Depth: 5
+                Durability Policy: Transient Local
+                Filter size: 10
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: global_costmap/costmap
+              Update Topic:
+                Depth: 5
+                Durability Policy: Transient Local
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: global_costmap/costmap_updates
+              Use Timestamp: false
+              Value: true
+            - Alpha: 0.699999988079071
+              Binary representation: false
+              Binary threshold: 100
+              Class: rviz_default_plugins/Map
+              Color Scheme: costmap
+              Draw Behind: false
+              Enabled: true
+              Name: Local Costmap
+              Topic:
+                Depth: 5
+                Durability Policy: Transient Local
+                Filter size: 10
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: local_costmap/costmap
+              Update Topic:
+                Depth: 5
+                Durability Policy: Transient Local
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: local_costmap/costmap_updates
+              Use Timestamp: false
+              Value: true
+          Enabled: true
+          Name: Costmaps
+        - Class: rviz_common/Group
+          Displays:
+            - Alpha: 1
+              Buffer Length: 1
+              Class: rviz_default_plugins/Path
+              Color: 25; 255; 0
+              Enabled: true
+              Head Diameter: 0.30000001192092896
+              Head Length: 0.20000000298023224
+              Length: 0.30000001192092896
+              Line Style: Lines
+              Line Width: 0.029999999329447746
+              Name: Global Path
+              Offset:
+                X: 0
+                Y: 0
+                Z: 0
+              Pose Color: 255; 85; 255
+              Pose Style: None
+              Radius: 0.029999999329447746
+              Shaft Diameter: 0.10000000149011612
+              Shaft Length: 0.10000000149011612
+              Topic:
+                Depth: 5
+                Durability Policy: Volatile
+                Filter size: 10
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: plan
+              Value: true
+            - Alpha: 1
+              Buffer Length: 1
+              Class: rviz_default_plugins/Path
+              Color: 0; 170; 255
+              Enabled: true
+              Head Diameter: 0.30000001192092896
+              Head Length: 0.20000000298023224
+              Length: 0.30000001192092896
+              Line Style: Lines
+              Line Width: 0.029999999329447746
+              Name: Local Path
+              Offset:
+                X: 0
+                Y: 0
+                Z: 0
+              Pose Color: 255; 85; 255
+              Pose Style: None
+              Radius: 0.029999999329447746
+              Shaft Diameter: 0.10000000149011612
+              Shaft Length: 0.10000000149011612
+              Topic:
+                Depth: 5
+                Durability Policy: Volatile
+                Filter size: 10
+                History Policy: Keep Last
+                Reliability Policy: Reliable
+                Value: local_plan
+              Value: true
+          Enabled: true
+          Name: Paths
+      Enabled: true
+      Name: Navigation
+    - Class: rviz_common/Group
+      Displays:
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 0.11649999767541885
+            Min Value: 0.11649999767541885
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz_default_plugins/LaserScan
+          Color: 255; 255; 255
+          Color Transformer: AxisColor
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 0
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: Localization Scan
+          Position Transformer: XYZ
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: localization/scan
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Axes Length: 1
+          Axes Radius: 0.10000000149011612
+          Class: rviz_default_plugins/PoseWithCovariance
+          Color: 255; 25; 0
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: true
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: AMCL Pose
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Arrow
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Reliable
+            Value: amcl_pose
+          Value: true
+        - Alpha: 1
+          Class: nav2_rviz_plugins/ParticleCloud
+          Color: 255; 25; 0
+          Enabled: false
+          Max Arrow Length: 0.30000001192092896
+          Min Arrow Length: 0.019999999552965164
+          Name: AMCL Particles
+          Shape: Arrow (Flat)
+          Topic:
+            Depth: 5
+            Durability Policy: Volatile
+            Filter size: 10
+            History Policy: Keep Last
+            Reliability Policy: Best Effort
+            Value: particle_cloud
+          Value: false
+      Enabled: true
+      Name: Localization
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: robot_1_map
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: goal_pose
+    - Class: rviz_default_plugins/PublishPoint
+      Single click: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /clicked_point
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 14.061332702636719
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: -0.07910633832216263
+        Y: 0.1303757131099701
+        Z: 0.6703118681907654
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.5047963261604309
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 2.3672118186950684
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  FrontCameraImage:
+    collapsed: false
+  Height: 1080
+  Hide Left Dock: false
+  Hide Right Dock: false
+  Navigation 2:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000003000000000000026f00000398fc0200000004fb0000002000460072006f006e007400430061006d0065007200610049006d0061006700650000000000ffffffff0000001700fffffffb000000100044006900730070006c006100790073010000003f0000019a000000cc00fffffffb0000001200530065006c0065006300740069006f006e00000001110000005d0000005d00fffffffb00000018004e0061007600690067006100740069006f006e0020003201000001df000001f8000001f800ffffff000000010000010000000398fc0200000002fc0000003f000002ca000000c80100001efa000000000100000002fb0000000a005600690065007700730100000000ffffffff0000010000fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000004a0000001000000009b00fffffffb0000000c00540065006c0065006f0070010000030f000000c8000000c800ffffff00000003000005a00000003cfc0100000001fb0000000800540069006d00650100000000000005a00000026f00ffffff000002250000039800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Teleop:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1440
+  X: 124
+  Y: 52
