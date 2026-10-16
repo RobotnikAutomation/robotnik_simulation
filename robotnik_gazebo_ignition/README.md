@@ -4,6 +4,11 @@
 
 This package provides the Gazebo-based simulation layer for Robotnik robots on ROS 2. It includes world launching, robot spawning, ROS 2 <-> Gazebo bridges, control integration and auxiliary simulation resources.
 
+> **Benchmark scope:** this package is also used as the Gazebo Harmonic
+> backend for the Robotnik simulator benchmarking system. Benchmark-specific
+> profiles and branches may pin a narrower sensor and world contract than the
+> general simulation package.
+
 > **Branch-specific guide**: `robotnik_gazebo_ignition` is maintained across ROS 2 distro branches, but the Gazebo version changes with each branch. This README documents only the validated workflow for `jazzy-devel`: ROS 2 Jazzy + Gazebo Harmonic. For conceptual background about architecture, compatibility and versioning, see [`../docs/ros2-gazebo-compatibility.md`](../docs/ros2-gazebo-compatibility.md).
 >
 > **Docker guide**: the full development Docker workflow is documented separately in [`../docker/README.md`](../docker/README.md).

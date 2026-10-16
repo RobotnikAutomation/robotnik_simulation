@@ -126,3 +126,4 @@
 
       allow_partial_joints_goal: false
       open_loop_control: true
+      interpolate_from_desired_state: true
