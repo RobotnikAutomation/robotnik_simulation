@@ -273,6 +273,13 @@ All thirteen arguments are optional:
 | `use_sim_time` | `true` | Use the simulated clock for launch-configured processes |
 | `low_performance_simulation` | `false` | Reduced sensor settings passed to Xacro |
 
+The basic RViz layout uses the prefixed `odom` frame and contains a grid,
+a `Robot` group (model and TF), and a `Sensors` group. The standard sensor
+examples cover front/rear laser scans, a top point cloud and a front camera.
+They start disabled: enable the displays fitted to your robot and adjust their
+topics if needed. Map, costmaps, paths and localization displays belong to the
+[navigation RViz layout](../common/robotnik_simulation_navigation/README.md#rviz).
+
 A manipulator is selected through `robot_model`, for example `rbkairos_plus`.
 There is no `has_arm` launch argument. The Xacro override changes only the
 robot description: matching control and bridge profiles are still selected

@@ -74,5 +74,24 @@ starts. Starting navigation from a separate terminal does not close a basic
 RViz that was already running. Bringup suppresses the basic view when it starts
 navigation in the same invocation.
 
+The display tree is organized into groups:
+
+- `Robot`: robot model and TF, alongside the grid at the root.
+- `Sensors`: standard front/rear laser scans, top point cloud and front camera,
+  all disabled initially. Enable the sensors fitted to your robot and adjust
+  their topics if needed.
+- `Navigation`: `Map`, `Costmaps` (global and local), and `Paths` (global in
+  green, local in blue).
+- `Localization`: the processed `localization/scan`, the AMCL pose with
+  covariance (`amcl_pose`), and optional AMCL particles (`particle_cloud`,
+  disabled initially). When using SLAM, disable the AMCL displays.
+
+The navigation view uses the prefixed `map` frame. Sensor, navigation and
+localization display topics are relative to the robot namespace. The standard
+sensor examples use Best Effort reliability, and the robot description uses
+Transient Local durability so the model can load when RViz starts after the
+state publisher. The basic view provides the same `Robot` and `Sensors` groups
+in the prefixed `odom` frame.
+
 For family availability, see [robot profiles](../robotnik_simulation_robots/README.md).
 For the include hierarchy, see the [configuration map](../../docs/configuration-audit/README.md).
