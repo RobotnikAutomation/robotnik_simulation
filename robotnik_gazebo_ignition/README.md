@@ -288,15 +288,15 @@ The launch does not read `robot.env` or uppercase environment variables.
 |---|---|---|
 | `rbwatcher` | `rbwatcher` | Supported |
 | `rb1` | `rb1` | Limited |
-| `rbcar` | `rbcar` | Limited |
+| `rbcar` | `rbcar` | Supported |
 | `rbfiqus` | `rbfiqus` | Limited |
-| `rbkairos` | `rbkairos`, `rbkairos_plus` | Limited |
-| `rbrobout` | `rbrobout`, `rbrobout_plus` | Limited |
-| `rbsummit` | `rbsummit` | Limited |
-| `rbsummit_steel` | `rbsummit_steel` | Limited |
-| `rbtheron` | `rbtheron`, `rbtheron_plus` | Limited |
-| `rbvogui` | `rbvogui`, `rbvogui_plus` | Limited |
-| `rbvogui_xl` | `rbvogui_xl` | Limited |
+| `rbkairos` | `rbkairos`, `rbkairos_plus` | Supported |
+| `rbrobout` | `rbrobout`, `rbrobout_plus` | Supported |
+| `rbsummit` | `rbsummit` | Supported |
+| `rbsummit_steel` | `rbsummit_steel` | Supported |
+| `rbtheron` | `rbtheron`, `rbtheron_plus` | Supported |
+| `rbvogui` | `rbvogui`, `rbvogui_plus` | Supported |
+| `rbvogui_xl` | `rbvogui_xl` | Supported |
 
 `Limited` means the robot has been integrated but may still require additional validation or tuning for some workflows.
 
