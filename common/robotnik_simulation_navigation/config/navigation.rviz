@@ -787,7 +787,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: robot_1_map
+    Fixed Frame: robot_map
     Frame Rate: 30
   Name: root
   Tools:
