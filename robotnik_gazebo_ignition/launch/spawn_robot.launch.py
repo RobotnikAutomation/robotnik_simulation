@@ -257,18 +257,36 @@ def launch_setup(context, params):
 
 def _launch_spawn_rviz(context, params):
     override = params['spawn_rviz_config'].perform(context)
-    config = ParameterFile(override or PathJoinSubstitution([
-        FindPackageShare('robotnik_gazebo_ignition'), 'config', 'rviz_config.rviz',
-    ]), allow_substs=True)
-    path = str(config.evaluate(context))
-    context.register_event_handler(OnShutdown(
-        on_shutdown=lambda event, context: config.cleanup(),
-    ))
+    frame_prefix = params['frame_prefix'].perform(context)
     robot_id = params['robot_id'].perform(context)
     model = params['robot_model'].perform(context)
+
+    if override:
+        rviz_src_patha = override
+    else:
+        rviz_src_path = PathJoinSubstitution([
+            FindPackageShare('robotnik_gazebo_ignition'), 'config', 'rviz_config.rviz',
+        ]).perform(context)
+
+    with open(rviz_src_path, 'r') as f:
+        content = f.read()
+
+    updated_content = content.replace('$(var frame_prefix)', frame_prefix)
+
+    temp_rviz = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.rviz')
+    temp_rviz.write(updated_content)
+    temp_rviz.close()
+
+    context.register_event_handler(OnShutdown(
+        on_shutdown=lambda event, context: os.remove(temp_rviz.name) if os.path.exists(temp_rviz.name) else None,
+    ))
+
     return [Node(
-        package='rviz2', executable='rviz2', name='spawn_rviz', namespace=robot_id,
-        arguments=['-d', path, '-t', f'{robot_id} - {model} - basic RViz'],
+        package='rviz2',
+        executable='rviz2',
+        name='spawn_rviz',
+        namespace=robot_id,
+        arguments=['-d', temp_rviz.name, '-t', f'{robot_id} {model} basic RViz'],
         parameters=[{'use_sim_time': params['use_sim_time']}],
     )]
 
