@@ -71,6 +71,19 @@ def _include(package, filename, arguments, delay=0.0):
         TimerAction(period=delay, actions=[action]) if delay else action,
     ], scoped=True)
 
+def _has_manipulation(context, robot, robot_model):
+    """Comprueba si el robot tiene un perfil de manipulación (brazo) configurado."""
+    if not robot or not robot_model:
+        return False
+    
+    directory = os.path.join(
+        FindPackageShare("robotnik_simulation_robots").perform(context),
+        robot,
+        "manipulation",
+    )
+    srdf_file = os.path.join(directory, f"{robot_model}.srdf")
+    return os.path.isfile(srdf_file)
+
 
 def _launch_setup(context):
     # Freeze parent values before includes write their own LaunchConfigurations.
@@ -83,6 +96,13 @@ def _launch_setup(context):
     navigation = enabled("run_navigation") and _component_available(
         context, values["robot"], "navigation", NAVIGATION_FILES, messages,
     )
+    has_arm = _has_manipulation(context, values["robot"], values["robot_model"])
+    moveit = enabled("run_moveit") and has_arm
+    if not has_arm and enabled("run_moveit"):
+        messages.append(LogInfo(msg=(
+            f"[INFO] Skipping MoveIt for robot '{values['robot']}' (model '{values['robot_model']}'): "
+            f"no manipulation SRDF profile found."
+        )))
     common = {name: values[name] for name in ("robot_id", "robot", "frame_prefix", "use_sim_time")}
     description = {name: values[name] for name in (
         "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type", "use_sim_time",
@@ -103,7 +123,7 @@ def _launch_setup(context):
         }, delay=10.0))
     if navigation:
         actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", common, delay=15.0))
-    if enabled("run_moveit"):
+    if moveit:
         actions.append(_include("robotnik_simulation_moveit", "moveit.launch.py", description, delay=25.0))
     return actions
 
