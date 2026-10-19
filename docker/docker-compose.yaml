@@ -3,7 +3,7 @@ name: robotnik_simulation
 services:
   robotnik_simulation:
     container_name: robotnik_simulation
-    image: ${ROBOTNIK_SIMULATION_IMAGE:-robotnik/simulation-gz:jazzy}
+    image: ${ROBOTNIK_SIMULATION_IMAGE:-robotnik_simulation:jazzy}
     build:
       context: ..
       dockerfile: docker/Dockerfile

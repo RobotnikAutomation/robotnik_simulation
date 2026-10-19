@@ -4,7 +4,7 @@ This document is a conceptual onboarding guide for understanding how ROS 2 and G
 
 It is not the canonical installation guide for any branch. For setup instructions, always follow the `README` of the branch and simulator package you are actually using.
 
-In this repository, the operational guide for `${ROS-DISTRO}-devel` lives in [`../robotnik_gazebo_ignition/README.md`](../robotnik_gazebo_ignition/README.md).
+In this repository, the operational guide for `jazzy-devel` lives in [`../robotnik_gazebo_ignition/README.md`](../robotnik_gazebo_ignition/README.md).
 
 ## Why this document exists
 
@@ -181,6 +181,10 @@ What belongs to ROS 2:
 - Launch orchestration
 - ROS-side `/clock` consumption
 
+For NVIDIA PRIME rendering, add `use_nvidia_gpu:=true` to the world command.
+The default false preserves normal device selection. This applies only to
+Gazebo's server/GUI; see the [rendering guide](../robotnik_gazebo_ignition/README.md#nvidia-prime-rendering).
+
 ### Example 2: Spawning a robot
 
 > **Important**: `spawn_robot.launch.py` requires an active Gazebo simulation. Launch a world first and keep it running before trying to spawn a robot. The robot spawn command does not start Gazebo by itself.
@@ -237,7 +241,8 @@ If the integration is not behaving as expected, the fastest checks are usually:
 - Operational setup for `jazzy-devel`: [`../robotnik_gazebo_ignition/README.md`](../robotnik_gazebo_ignition/README.md)
 - World launch integration: [`../robotnik_gazebo_ignition/launch/spawn_world.launch.py`](../robotnik_gazebo_ignition/launch/spawn_world.launch.py)
 - Robot spawning and bridge generation: [`../robotnik_gazebo_ignition/launch/spawn_robot.launch.py`](../robotnik_gazebo_ignition/launch/spawn_robot.launch.py)
-- Current dependency manifest for `jazzy-devel`: [`../dependencies/repos/robotnik_simulation.repos`](../dependencies/repos/robotnik_simulation.repos)
+- Pinned external dependencies: [`robotnik_simulation.jazzy.repos`](../dependencies/repos/robotnik_simulation.jazzy.repos)
+- Branch-based external dependencies: [`robotnik_simulation.jazzy-devel.repos`](../dependencies/repos/robotnik_simulation.jazzy-devel.repos)
 
 ## Summary
 

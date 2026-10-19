@@ -1,7 +1,7 @@
 /**:
   smoother_server:
     ros__parameters:
-      robot_base_frame: robot_base_link
+      robot_base_frame: $(var frame_prefix)base_link
       smoother_plugins: ["simple_smoother", "route_smoother"]
       simple_smoother:
         plugin: "nav2_smoother::SimpleSmoother"

@@ -39,7 +39,7 @@ Simulation-based environments and launch assets for Robotnik platforms on ROS 2.
 
 | Simulator | Package | Instructions |
 |-----------|---------|--------------|
-| <a href="robotnik_gazebo_ignition/README.md"><img src="docs/assets/img/gazebo-logo.png" alt="Gazebo Logo" height=50></a> | `robotnik_gazebo_ignition` | [README](robotnik_gazebo_ignition/README.md)
+| <a href="robotnik_gazebo_ignition/README.md"><img src="docs/assets/img/gazebo-logo.png" alt="Gazebo Logo" height=50></a> | `robotnik_gazebo_ignition` | [README](robotnik_gazebo_ignition/README.md) |
 
 
 ## Quick start
@@ -61,18 +61,37 @@ That guide covers:
 
 ### Bringup
 
-Launch complete simulation:
+Start the default `rbsummit` simulation with localization and navigation:
 
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robotnik_simulation_bringup bringup_complete.launch.py
 ```
-ros2 launch  robotnik_simulation_bringup bringup_complete.launch.py robot_model:=rbsummit
-```
+
+See the [bringup guide](common/robotnik_simulation_bringup/README.md) for robot
+selection, optional modules and launch arguments.
 
 ![alt text](common/robotnik_simulation_bringup/docs/summit-rviz.png)
 
-### Additional Configuration
+## Package guides
 
-For a complete description of available parameters and files, refer to the `robotnik_simulation_bringup` [README](common/robotnik_simulation_bringup/README.md).
+| Package | Responsibility |
+|---|---|
+| [Gazebo](robotnik_gazebo_ignition/README.md) | Source installation, world, spawn, base view and rendering |
+| [Bringup](common/robotnik_simulation_bringup/README.md) | Integrated startup and all 22 top-level arguments |
+| [Localization](common/robotnik_simulation_localization/README.md) | Scan pipeline, AMCL, SLAM and map saving |
+| [Navigation](common/robotnik_simulation_navigation/README.md) | Nav2 and its RViz |
+| [MoveIt](common/robotnik_simulation_moveit/README.md) | Manipulation and generic manipulation RViz |
+| [Robot profiles](common/robotnik_simulation_robots/README.md) | Family/variant configurations |
+| [Configuration map](docs/configuration-audit/README.md) | Parameter propagation, inventories and audit boundaries |
 
+Only Docker translates `env/robot.env`. Standalone launch files take CLI
+arguments. Navigation and MoveIt control their own RViz options; bringup only
+controls the basic view and which modules start.
+
+For multiple complete robot stacks in one world, start Gazebo once and use
+`run_world:=false` with a unique `robot_id` for each bringup. See the
+[shared-world example](common/robotnik_simulation_bringup/README.md#multiple-robots-in-one-world).
 
 ## Related projects
 

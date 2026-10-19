@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rbrobout_plus">
+    <xacro:arg name="prefix" default="robot_" />
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import rbrobout_plus urdf file -->
+    <xacro:include filename="$(find robotnik_description)/robots/rbrobout/rbrobout_plus.urdf.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="rbrobout_plus.ros2_control.xacro" />
+
+
+    <xacro:rbrobout_plus_ros2_control
+        name="FakeSystem"
+        prefix="$(arg prefix)"
+        initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>
