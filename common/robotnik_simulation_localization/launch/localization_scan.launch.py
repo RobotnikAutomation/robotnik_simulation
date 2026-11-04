@@ -1,4 +1,4 @@
-import os
+from robotnik_simulation_robots.profiles import resolve_config
 import yaml
 
 from launch import LaunchDescription
@@ -6,31 +6,13 @@ from launch.actions import DeclareLaunchArgument, GroupAction, LogInfo, OpaqueFu
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer, Node, PushRosNamespace
 from launch_ros.descriptions import ComposableNode
-from launch_ros.substitutions import FindPackageShare
 
 
 def _load_scan_pipeline(context):
-    robot = LaunchConfiguration("robot").perform(context)
-    if robot:
-        config_path = os.path.join(
-            FindPackageShare("robotnik_simulation_robots").perform(context),
-            robot,
-            "localization",
-            "localization_scan.yaml",
-        )
-        if not os.path.isfile(config_path):
-            raise FileNotFoundError(
-                f"Localization scan configuration for robot '{robot}' was not found at {config_path}."
-            )
-    else:
-        config_path = os.path.join(
-            FindPackageShare("robotnik_simulation_localization").perform(context),
-            "config",
-            "localization_scan.yaml",
-        )
-
-    with open(config_path, "r", encoding="utf-8") as config_file:
-        return yaml.safe_load(config_file) or {}, config_path
+    path = resolve_config(context, LaunchConfiguration("robot").perform(context),
+                          "localization", "localization_scan.yaml", "robotnik_simulation_localization")
+    with open(path, encoding="utf-8") as stream:
+        return yaml.safe_load(stream) or {}, path
 
 
 def _pointcloud_parameters(use_sim_time, frame_prefix, pcl_config):

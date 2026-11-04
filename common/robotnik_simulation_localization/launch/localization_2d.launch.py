@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+from robotnik_simulation_robots.profiles import resolve_config
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -34,25 +34,10 @@ from launch_ros.parameter_descriptions import ParameterFile
 
 
 def _resolve_amcl_config(context):
-    robot = LaunchConfiguration("robot").perform(context)
-    if robot:
-        config_path = os.path.join(
-            FindPackageShare("robotnik_simulation_robots").perform(context),
-            robot,
-            "localization",
-            "amcl.yaml",
-        )
-        if not os.path.isfile(config_path):
-            raise FileNotFoundError(
-                f"AMCL configuration for robot '{robot}' was not found at {config_path}."
-            )
-    else:
-        config_path = os.path.join(
-            FindPackageShare("robotnik_simulation_localization").perform(context),
-            "config",
-            "amcl.yaml",
-        )
-    return ParameterFile(config_path, allow_substs=True)
+    path = resolve_config(context, LaunchConfiguration("robot").perform(context),
+                          "localization", "amcl.yaml", "robotnik_simulation_localization")
+    return ParameterFile(path, allow_substs=True)
+
 
 def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")

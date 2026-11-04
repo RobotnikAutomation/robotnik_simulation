@@ -1,7 +1,9 @@
 # Robot-specific simulation profiles
 
 This package stores configurations selected by the simulation launch packages.
-It does not start nodes. Robot family and variant are different selectors:
+It does not start nodes and has no launch files. Its importable Python helper
+`robotnik_simulation_robots.profiles` provides resource resolution and validation
+for the launch packages; configurations retain their existing share paths. Robot family and variant are different selectors:
 
 ```text
 <robot>/

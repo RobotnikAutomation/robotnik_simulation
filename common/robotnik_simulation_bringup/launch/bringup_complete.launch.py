@@ -23,7 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+from robotnik_simulation_robots.profiles import (
+    has_manipulation, missing_profile_files, resolve_manipulation_profile,
+)
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, LogInfo, OpaqueFunction, ResetLaunchConfigurations, TimerAction
@@ -43,14 +45,11 @@ NAVIGATION_FILES = (
 def _component_available(context, robot, component, required_files, messages):
     if not robot:
         return True
-    directory = os.path.join(
-        FindPackageShare("robotnik_simulation_robots").perform(context), robot, component,
-    )
-    missing = [name for name in required_files if not os.path.isfile(os.path.join(directory, name))]
+    missing = missing_profile_files(context, robot, component, required_files)
     if missing:
         messages.append(LogInfo(msg=(
-            f"[WARN] Skipping {component} for robot '{robot}': missing configuration "
-            f"in {directory}: {', '.join(missing)}"
+            f"[WARN] Skipping {component} for robot '{robot}': missing configuration"
+            f": {', '.join(missing)}"
         )))
     return not missing
 
@@ -71,19 +70,6 @@ def _include(package, filename, arguments, delay=0.0):
         TimerAction(period=delay, actions=[action]) if delay else action,
     ], scoped=True)
 
-def _has_manipulation(context, robot, robot_model):
-    """Comprueba si el robot tiene un perfil de manipulación (brazo) configurado."""
-    if not robot or not robot_model:
-        return False
-    
-    directory = os.path.join(
-        FindPackageShare("robotnik_simulation_robots").perform(context),
-        robot,
-        "manipulation",
-    )
-    srdf_file = os.path.join(directory, f"{robot_model}.srdf")
-    return os.path.isfile(srdf_file)
-
 
 def _launch_setup(context):
     # Freeze parent values before includes write their own LaunchConfigurations.
@@ -100,9 +86,12 @@ def _launch_setup(context):
         context, values["robot"], "localization", ("localization_scan.yaml",), messages,
     )
     if not scan_available:
+        messages.append(LogInfo(msg="[WARN] Skipping localization and navigation: internal scan profile is missing."))
         localization = navigation = False
-    has_arm = _has_manipulation(context, values["robot"], values["robot_model"])
+    has_arm = has_manipulation(context, values["robot"], values["robot_model"])
     moveit = enabled("run_moveit") and has_arm
+    if moveit:
+        resolve_manipulation_profile(context, values["robot"], values["robot_model"])
     if not has_arm and enabled("run_moveit"):
         messages.append(LogInfo(msg=(
             f"[INFO] Skipping MoveIt for robot '{values['robot']}' (model '{values['robot_model']}'): "

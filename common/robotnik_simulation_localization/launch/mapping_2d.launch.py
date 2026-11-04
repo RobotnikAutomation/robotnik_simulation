@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+from robotnik_simulation_robots.profiles import resolve_config
 
 from launch_ros.actions import Node
 from launch import LaunchDescription
@@ -34,25 +34,10 @@ from launch_ros.actions import PushRosNamespace
 from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 
 def _resolve_slam_toolbox_config(context):
-    robot = LaunchConfiguration("robot").perform(context)
-    if robot:
-        profile_config = os.path.join(
-            FindPackageShare("robotnik_simulation_robots").perform(context),
-            robot,
-            "localization",
-            "slam_toolbox.yaml",
-        )
-        if not os.path.isfile(profile_config):
-            raise FileNotFoundError(
-                f"SLAM configuration for robot '{robot}' was not found at {profile_config}."
-            )
-        return profile_config
+    path = resolve_config(context, LaunchConfiguration("robot").perform(context),
+                          "localization", "slam_toolbox.yaml", "robotnik_simulation_localization")
+    return path
 
-    return os.path.join(
-        FindPackageShare("robotnik_simulation_localization").perform(context),
-        "config",
-        "slam_toolbox.yaml",
-    )
 
 def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")

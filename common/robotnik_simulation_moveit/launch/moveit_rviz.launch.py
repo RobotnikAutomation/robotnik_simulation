@@ -35,7 +35,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 from launch.substitutions import Command, FindExecutable
-from robotnik_simulation_moveit.profiles import resolve_manipulation_profile
+from robotnik_simulation_robots.profiles import load_config, resolve_manipulation_profile
 
 
 def load_yaml(package_path, relative_path):
@@ -43,14 +43,6 @@ def load_yaml(package_path, relative_path):
     with open(full_path, 'r') as f:
         return yaml.safe_load(f)
 
-
-def load_config(context, source_file):
-    config_file = ParameterFile(source_file, allow_substs=True)
-    try:
-        with open(config_file.evaluate(context), 'r') as config_stream:
-            return yaml.safe_load(config_stream)
-    finally:
-        config_file.cleanup()
 
 
 def launch_setup(context, *args, **kwargs):

@@ -28,6 +28,8 @@ import tempfile
 
 import yaml
 
+from robotnik_simulation_robots.profiles import resolve_variant_file
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo, OpaqueFunction
 from launch.event_handlers import OnShutdown
@@ -115,16 +117,11 @@ def launch_setup(context, params):
         package_path = FindPackageShare('robotnik_gazebo_ignition').perform(context)
 
         templates_config = load_yaml(package_path, 'config/bridge_templates.yaml') or {}
-        profile_path = Path(package_path) / 'config' / 'profile' / robot / f'{robot_model}_bridges.yaml'
-        default_path = profile_path.with_name(f'{robot}_bridges.yaml')
-        if not profile_path.is_file():
-            if not default_path.is_file():
-                raise FileNotFoundError(
-                    f"No bridge profile found. Tried {profile_path} and {default_path}"
-                )
-            ret.append(LogInfo(msg=f"[WARN] Bridge profile {profile_path} is missing; using {default_path}"))
-            profile_path = default_path
-        profile_config = load_yaml(package_path, str(profile_path)) or {}
+        directory = Path(package_path) / 'config' / 'profile' / robot
+        profile_path = resolve_variant_file(directory, robot, robot_model, '_bridges.yaml')
+        if Path(profile_path).name != f'{robot_model}_bridges.yaml':
+            ret.append(LogInfo(msg=f"[WARN] No bridges for model '{robot_model}'; using {profile_path}"))
+        profile_config = load_yaml(package_path, profile_path) or {}
 
         templates = templates_config.get('templates', {})
         bridge_items = profile_config.get('bridges', [])

@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os
+from robotnik_simulation_robots.profiles import resolve_config
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -33,22 +33,8 @@ from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
 from launch_ros.parameter_descriptions import ParameterFile
 
 def _resolve_config(context, filename):
-    robot = LaunchConfiguration("robot").perform(context)
-    if robot:
-        path = os.path.join(
-            FindPackageShare("robotnik_simulation_robots").perform(context),
-            robot,
-            "navigation",
-            filename,
-        )
-    else:
-        path = os.path.join(
-            FindPackageShare("robotnik_simulation_navigation").perform(context),
-            "config",
-            filename,
-        )
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f"Navigation configuration was not found: {path}")
+    path = resolve_config(context, LaunchConfiguration("robot").perform(context),
+                          "navigation", filename, "robotnik_simulation_navigation")
     return ParameterFile(path, allow_substs=True)
 
 
