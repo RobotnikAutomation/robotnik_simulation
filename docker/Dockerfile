@@ -73,7 +73,7 @@ RUN awk ' \
 
 # Fail before building an image whose robot launch cannot expand its description.
 RUN test -f "${SRC_DIR}/robotnik/robotnik_description/simulators/gazebo_ignition/robot.urdf.xacro" \
-    || { echo "Incompatible robotnik_description revision: integrate description PR #98 into the official compatibility branch and update the pinned .repos manifest." >&2; exit 1; }
+    || { echo "Incompatible robotnik_description revision: missing simulators/gazebo_ignition/robot.urdf.xacro; use the compatible revision pinned in dependencies/repos/robotnik_simulation.jazzy.repos." >&2; exit 1; }
 
 RUN if compgen -G "${REPO_ROOT}/debs/*.deb" > /dev/null; then \
         apt-get update \

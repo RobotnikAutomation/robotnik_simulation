@@ -77,14 +77,13 @@ From the repository root:
 cd ~/ros2_ws/src/robotnik/robotnik_simulation
 ```
 
-The pinned manifest must contain a compatible `robotnik_description` revision.
-Its current `751059e` pin predates the Gazebo composition wrapper. Integration
-of [description #98](https://github.com/RobotnikAutomation/robotnik_description/pull/98)
-into the official `feat/jazzy-sim-compatibility` branch and updating the stable
-pin are pending. The Dockerfile explicitly rejects an imported description
-without `simulators/gazebo_ignition/robot.urdf.xacro`; a clean image is not yet
-validated against that pending official revision. Local validation using the
-companion feature checkout does not replace this release check.
+The pinned manifest uses the official `robotnik_description` merge commit
+`cc4aad99d277da43428cfae473ca252a01cb7271` from
+[`feat/jazzy-sim-compatibility`](https://github.com/RobotnikAutomation/robotnik_description/tree/feat/jazzy-sim-compatibility),
+which includes [description #98](https://github.com/RobotnikAutomation/robotnik_description/pull/98).
+The development manifest follows that official branch. The Dockerfile checks
+that the imported description contains the required
+`simulators/gazebo_ignition/robot.urdf.xacro` before compiling the workspace.
 
 Build the image:
 

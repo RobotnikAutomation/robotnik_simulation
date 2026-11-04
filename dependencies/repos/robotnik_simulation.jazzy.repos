@@ -26,13 +26,11 @@
 ---
 repositories:
   # Robotnik repositories
-  # Release gate: replace this pin after description #98 is integrated into the
-  # official feat/jazzy-sim-compatibility branch and its Gazebo wrapper is verified.
-  # The current pin predates simulators/gazebo_ignition/robot.urdf.xacro.
+  # Description #98 integrated into the official feat/jazzy-sim-compatibility branch.
   robotnik/robotnik_description:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_description.git
-    version: 751059edd6af3a9c083018cfaee59e4496d46580
+    version: cc4aad99d277da43428cfae473ca252a01cb7271
   robotnik/robotnik_sensors:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_sensors.git

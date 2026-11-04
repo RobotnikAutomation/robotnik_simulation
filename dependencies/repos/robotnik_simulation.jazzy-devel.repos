@@ -26,7 +26,7 @@
 ---
 repositories:
   # Robotnik repositories
-  # Temporary official integration branch; requires the description #98 changes.
+  # Official integration branch with the description #98 Gazebo composition changes.
   robotnik/robotnik_description:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_description.git
