@@ -26,10 +26,11 @@
 ---
 repositories:
   # Robotnik repositories
+  # Temporary official integration branch; requires the description #98 changes.
   robotnik/robotnik_description:
     type: git
-    url: https://github.com/jlgalanRB/robotnik_description.git
-    version: feat/jazzy/simulator-compatibility
+    url: https://github.com/RobotnikAutomation/robotnik_description.git
+    version: feat/jazzy-sim-compatibility
   robotnik/robotnik_sensors:
     type: git
     url: https://github.com/RobotnikAutomation/robotnik_sensors.git

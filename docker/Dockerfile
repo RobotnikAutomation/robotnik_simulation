@@ -71,6 +71,10 @@ RUN awk ' \
     ' "${EXTERNAL_REPOS_FILE}" > /tmp/robotnik_external.repos \
     && vcs import --skip-existing "${SRC_DIR}" < /tmp/robotnik_external.repos
 
+# Fail before building an image whose robot launch cannot expand its description.
+RUN test -f "${SRC_DIR}/robotnik/robotnik_description/simulators/gazebo_ignition/robot.urdf.xacro" \
+    || { echo "Incompatible robotnik_description revision: integrate description PR #98 into the official compatibility branch and update the pinned .repos manifest." >&2; exit 1; }
+
 RUN if compgen -G "${REPO_ROOT}/debs/*.deb" > /dev/null; then \
         apt-get update \
         && apt-get install -y "${REPO_ROOT}"/debs/*.deb \

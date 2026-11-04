@@ -462,6 +462,11 @@ ros2 launch robotnik_gazebo_ignition spawn_robot.launch.py \
 Robot-specific `ros2_control` configurations are maintained by
 `robotnik_simulation_robots` under each robot's `control/` directory. The
 `config/profile/` files in this package configure Gazebo-to-ROS topic bridges.
+The bridge resolver first tries `<robot>/<robot_model>_bridges.yaml`, then
+`<robot>/<robot>_bridges.yaml` with a warning. If both are absent, spawning fails
+with the attempted paths. This fallback only applies to bridges: a custom model
+still needs its selected xacro and control profile. Top lidar clouds use the
+ROS topic `top_lidar/points` in the robot namespace.
 
 ## Docker
 
