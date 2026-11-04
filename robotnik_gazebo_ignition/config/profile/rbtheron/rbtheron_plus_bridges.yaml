@@ -17,7 +17,7 @@ bridges:
   - template: point_cloud
     name: top_lidar
     gz_topic: top_lidar/scan/points
-    ros_topic: top_laser/points
+    ros_topic: top_lidar/points
 
   - template: rgb_camera
     name: front_camera

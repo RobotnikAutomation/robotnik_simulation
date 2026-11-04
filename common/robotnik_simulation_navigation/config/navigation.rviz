@@ -29,12 +29,12 @@ Panels:
     SyncMode: 0
     SyncSource: Localization Scan
   - Class: teleop_panel/Teleop
-    CommandFrameId: base_link
+    CommandFrameId: $(var frame_prefix)base_link
     CommandMessageType: Twist
     MaxAngular: 1
     MaxLinear: 1
     Name: Teleop
-    Topic: /robot_1/robotnik_base_control/cmd_vel_unstamped
+    Topic: /$(var robot_id)/robotnik_base_control/cmd_vel_unstamped
   - Class: nav2_rviz_plugins/Navigation 2
     Name: Navigation 2
 Visualization Manager:
@@ -78,188 +78,6 @@ Visualization Manager:
             Expand Link Details: false
             Expand Tree: false
             Link Tree Style: Links in Alphabetic Order
-            robot_1_back_left_base_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_back_left_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_back_right_base_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_back_right_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_base_docking_contact:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_base_footprint:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_base_logos_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_battery_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_chassis_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_laser_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_laser_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_left_base_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_left_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_rgbd_camera_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_color_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_color_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_depth_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_depth_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_infra1_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_infra1_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_infra2_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_infra2_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_front_rgbd_camera_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_right_base_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_front_right_wheel:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_imu_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_imu_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_leds_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_rear_laser_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_1_rear_laser_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_color_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_color_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_depth_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_depth_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_infra1_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_infra1_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_infra2_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_infra2_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_1_rear_rgbd_camera_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
           Mass Properties:
             Inertia: false
             Mass: false
@@ -275,166 +93,12 @@ Visualization Manager:
           Frame Timeout: 15
           Frames:
             All Enabled: true
-            robot_1_back_left_base_wheel:
-              Value: true
-            robot_1_back_left_wheel:
-              Value: true
-            robot_1_back_right_base_wheel:
-              Value: true
-            robot_1_back_right_wheel:
-              Value: true
-            robot_1_base_docking_contact:
-              Value: true
-            robot_1_base_footprint:
-              Value: true
-            robot_1_base_link:
-              Value: true
-            robot_1_base_logos_link:
-              Value: true
-            robot_1_battery_link:
-              Value: true
-            robot_1_chassis_link:
-              Value: true
-            robot_1_front_laser_base_link:
-              Value: true
-            robot_1_front_laser_link:
-              Value: true
-            robot_1_front_laser_link_calibrated:
-              Value: true
-            robot_1_front_left_base_wheel:
-              Value: true
-            robot_1_front_left_wheel:
-              Value: true
-            robot_1_front_rgbd_camera_base_link:
-              Value: true
-            robot_1_front_rgbd_camera_color_frame:
-              Value: true
-            robot_1_front_rgbd_camera_color_optical_frame:
-              Value: true
-            robot_1_front_rgbd_camera_depth_frame:
-              Value: true
-            robot_1_front_rgbd_camera_depth_optical_frame:
-              Value: true
-            robot_1_front_rgbd_camera_infra1_frame:
-              Value: true
-            robot_1_front_rgbd_camera_infra1_optical_frame:
-              Value: true
-            robot_1_front_rgbd_camera_infra2_frame:
-              Value: true
-            robot_1_front_rgbd_camera_infra2_optical_frame:
-              Value: true
-            robot_1_front_rgbd_camera_link:
-              Value: true
-            robot_1_front_right_base_wheel:
-              Value: true
-            robot_1_front_right_wheel:
-              Value: true
-            robot_1_imu_base_link:
-              Value: true
-            robot_1_imu_link:
-              Value: true
-            robot_1_leds_link:
-              Value: true
-            robot_1_map:
-              Value: true
-            robot_1_odom:
-              Value: true
-            robot_1_rear_laser_base_link:
-              Value: true
-            robot_1_rear_laser_link:
-              Value: true
-            robot_1_rear_laser_link_calibrated:
-              Value: true
-            robot_1_rear_rgbd_camera_base_link:
-              Value: true
-            robot_1_rear_rgbd_camera_color_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_color_optical_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_depth_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_depth_optical_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_infra1_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_infra1_optical_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_infra2_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_infra2_optical_frame:
-              Value: true
-            robot_1_rear_rgbd_camera_link:
-              Value: true
           Marker Scale: 1
           Name: TF
           Show Arrows: true
           Show Axes: true
           Show Names: false
-          Tree:
-            robot_1_map:
-              robot_1_odom:
-                robot_1_base_footprint:
-                  robot_1_base_link:
-                    robot_1_back_left_base_wheel:
-                      robot_1_back_left_wheel:
-                        {}
-                    robot_1_back_right_base_wheel:
-                      robot_1_back_right_wheel:
-                        {}
-                    robot_1_chassis_link:
-                      robot_1_base_docking_contact:
-                        {}
-                      robot_1_base_logos_link:
-                        {}
-                      robot_1_battery_link:
-                        {}
-                      robot_1_leds_link:
-                        {}
-                    robot_1_front_laser_base_link:
-                      robot_1_front_laser_link:
-                        robot_1_front_laser_link_calibrated:
-                          {}
-                    robot_1_front_left_base_wheel:
-                      robot_1_front_left_wheel:
-                        {}
-                    robot_1_front_rgbd_camera_base_link:
-                      robot_1_front_rgbd_camera_link:
-                        robot_1_front_rgbd_camera_color_frame:
-                          robot_1_front_rgbd_camera_color_optical_frame:
-                            {}
-                        robot_1_front_rgbd_camera_depth_frame:
-                          robot_1_front_rgbd_camera_depth_optical_frame:
-                            {}
-                        robot_1_front_rgbd_camera_infra1_frame:
-                          robot_1_front_rgbd_camera_infra1_optical_frame:
-                            {}
-                        robot_1_front_rgbd_camera_infra2_frame:
-                          robot_1_front_rgbd_camera_infra2_optical_frame:
-                            {}
-                    robot_1_front_right_base_wheel:
-                      robot_1_front_right_wheel:
-                        {}
-                    robot_1_imu_base_link:
-                      robot_1_imu_link:
-                        {}
-                    robot_1_rear_laser_base_link:
-                      robot_1_rear_laser_link:
-                        robot_1_rear_laser_link_calibrated:
-                          {}
-                    robot_1_rear_rgbd_camera_base_link:
-                      robot_1_rear_rgbd_camera_link:
-                        robot_1_rear_rgbd_camera_color_frame:
-                          robot_1_rear_rgbd_camera_color_optical_frame:
-                            {}
-                        robot_1_rear_rgbd_camera_depth_frame:
-                          robot_1_rear_rgbd_camera_depth_optical_frame:
-                            {}
-                        robot_1_rear_rgbd_camera_infra1_frame:
-                          robot_1_rear_rgbd_camera_infra1_optical_frame:
-                            {}
-                        robot_1_rear_rgbd_camera_infra2_frame:
-                          robot_1_rear_rgbd_camera_infra2_optical_frame:
-                            {}
+          Tree: {}
           Update Interval: 0
           Value: true
       Enabled: true
@@ -787,7 +451,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: robot_map
+    Fixed Frame: $(var frame_prefix)map
     Frame Rate: 30
   Name: root
   Tools:

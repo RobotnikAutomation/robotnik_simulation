@@ -92,6 +92,8 @@ main() {
     append_launch_arg "spawn_rviz_config" "${SPAWN_RVIZ_CONFIG:-}"
     append_launch_arg "use_sim_time" "${USE_SIM_TIME:-}"
     append_launch_arg "run_mapping" "${RUN_MAPPING:-}"
+    append_launch_arg "run_scan_pipeline" "${RUN_SCAN_PIPELINE:-}"
+    append_launch_arg "mapping_autostart" "${MAPPING_AUTOSTART:-}"
     append_launch_arg "x" "${X:-}"
     append_launch_arg "y" "${Y:-}"
     append_launch_arg "z" "${Z:-}"

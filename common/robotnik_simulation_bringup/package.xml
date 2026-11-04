@@ -21,6 +21,10 @@
   <exec_depend>robotnik_simulation_robots</exec_depend>
   <exec_depend>robotnik_simulation_moveit</exec_depend>
 
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-yaml</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -18,6 +18,7 @@
   <exec_depend>teleop_panel</exec_depend>
   <exec_depend>navigation2</exec_depend>
   <exec_depend>robotnik_simulation_robots</exec_depend>
+  <exec_depend>robotnik_simulation_localization</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

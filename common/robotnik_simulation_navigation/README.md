@@ -10,9 +10,13 @@ With a world, robot, map and the required transforms already available:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 launch robotnik_simulation_navigation navigation.launch.py robot:=rbsummit
+ros2 launch robotnik_simulation_navigation navigation.launch.py \
+  robot:=rbsummit run_scan_pipeline:=false
 ```
 
+The example assumes localization already supplies `localization/scan`. Omit
+`run_scan_pipeline:=false` when navigation must prepare its own scans, including
+when using an external localizer. Only one launch should own scan preparation.
 Use the same instance, family, frame prefix and clock as the running robot.
 Localization is a separate module; navigation does not start AMCL or SLAM and
 has no odometry-only fallback. See the
@@ -30,7 +34,7 @@ Bringup uses this module's visual defaults and does not expose its RViz options.
 
 ## Arguments of navigation.launch.py
 
-All six arguments are optional:
+All seven arguments are optional:
 
 | Argument | Default | Effect |
 |---|---|---|
@@ -39,6 +43,7 @@ All six arguments are optional:
 | `frame_prefix` | `<robot_id>_` | Prefix used in frame parameters and the RViz configuration |
 | `use_sim_time` | `true` | Clock for Nav2 nodes, costmaps and RViz |
 | `run_navigation_rviz` | `true` | Open the navigation view |
+| `run_scan_pipeline` | `true` | Prepare costmap scans independently of AMCL/SLAM |
 | `navigation_rviz_config` | Empty | RViz override; empty selects `config/navigation.rviz` |
 
 Both `nav2_task.launch.py` and `nav2_mission.launch.py` accept the first four

@@ -54,6 +54,7 @@ def _launch_rviz(context):
 
 def generate_launch_description():
     arguments = [
+        DeclareLaunchArgument("run_scan_pipeline", default_value="true"),
         DeclareLaunchArgument("robot_id", default_value="robot"),
         DeclareLaunchArgument("robot", default_value="", description="Optional robot profile"),
         DeclareLaunchArgument("frame_prefix", default_value=[LaunchConfiguration("robot_id"), "_"]),
@@ -67,6 +68,11 @@ def generate_launch_description():
             FindPackageShare("robotnik_simulation_navigation"), "launch", filename,
         ])), launch_arguments=common.items(),
     )], scoped=True) for filename in ("nav2_task.launch.py", "nav2_mission.launch.py")]
-    return LaunchDescription(arguments + children + [OpaqueFunction(
+    scan = GroupAction([IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            FindPackageShare("robotnik_simulation_localization"), "launch", "localization_scan.launch.py",
+        ])), launch_arguments=common.items(),
+    )], scoped=True, condition=IfCondition(LaunchConfiguration("run_scan_pipeline")))
+    return LaunchDescription(arguments + [scan] + children + [OpaqueFunction(
         function=_launch_rviz, condition=IfCondition(LaunchConfiguration("run_navigation_rviz")),
     )])

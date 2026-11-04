@@ -88,133 +88,6 @@ Visualization Manager:
             Expand Link Details: false
             Expand Tree: false
             Link Tree Style: Links in Alphabetic Order
-            robot_back_left_wheel_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_back_right_wheel_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_docking_contact:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_base_footprint:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_logo_front:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_logo_left:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_logo_rear:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_base_logo_right:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_front_laser_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_front_laser_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_left_wheel_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_front_rgbd_camera_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_color_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_color_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_depth_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_depth_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_infra1_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_infra1_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_infra2_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_infra2_optical_frame:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_front_rgbd_camera_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_front_right_wheel_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_imu_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_imu_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_rear_laser_base_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
-            robot_rear_laser_link:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-            robot_top_cover:
-              Alpha: 1
-              Show Axes: false
-              Show Trail: false
-              Value: true
           Mass Properties:
             Inertia: false
             Mass: false
@@ -230,125 +103,12 @@ Visualization Manager:
           Frame Timeout: 15
           Frames:
             All Enabled: true
-            robot_back_left_wheel_link:
-              Value: true
-            robot_back_right_wheel_link:
-              Value: true
-            robot_base_docking_contact:
-              Value: true
-            robot_base_footprint:
-              Value: true
-            robot_base_link:
-              Value: true
-            robot_base_logo_front:
-              Value: true
-            robot_base_logo_left:
-              Value: true
-            robot_base_logo_rear:
-              Value: true
-            robot_base_logo_right:
-              Value: true
-            robot_front_laser_base_link:
-              Value: true
-            robot_front_laser_link:
-              Value: true
-            robot_front_laser_link_calibrated:
-              Value: true
-            robot_front_left_wheel_link:
-              Value: true
-            robot_front_rgbd_camera_base_link:
-              Value: true
-            robot_front_rgbd_camera_color_frame:
-              Value: true
-            robot_front_rgbd_camera_color_optical_frame:
-              Value: true
-            robot_front_rgbd_camera_depth_frame:
-              Value: true
-            robot_front_rgbd_camera_depth_optical_frame:
-              Value: true
-            robot_front_rgbd_camera_infra1_frame:
-              Value: true
-            robot_front_rgbd_camera_infra1_optical_frame:
-              Value: true
-            robot_front_rgbd_camera_infra2_frame:
-              Value: true
-            robot_front_rgbd_camera_infra2_optical_frame:
-              Value: true
-            robot_front_rgbd_camera_link:
-              Value: true
-            robot_front_right_wheel_link:
-              Value: true
-            robot_imu_base_link:
-              Value: true
-            robot_imu_link:
-              Value: true
-            robot_map:
-              Value: true
-            robot_odom:
-              Value: true
-            robot_rear_laser_base_link:
-              Value: true
-            robot_rear_laser_link:
-              Value: true
-            robot_rear_laser_link_calibrated:
-              Value: true
-            robot_top_cover:
-              Value: true
           Marker Scale: 1
           Name: TF
           Show Arrows: true
           Show Axes: true
           Show Names: false
-          Tree:
-            robot_map:
-              robot_odom:
-                robot_base_footprint:
-                  robot_base_link:
-                    robot_back_left_wheel_link:
-                      {}
-                    robot_back_right_wheel_link:
-                      {}
-                    robot_base_docking_contact:
-                      {}
-                    robot_base_logo_front:
-                      {}
-                    robot_base_logo_left:
-                      {}
-                    robot_base_logo_rear:
-                      {}
-                    robot_base_logo_right:
-                      {}
-                    robot_front_laser_base_link:
-                      robot_front_laser_link:
-                        robot_front_laser_link_calibrated:
-                          {}
-                    robot_front_left_wheel_link:
-                      {}
-                    robot_front_rgbd_camera_base_link:
-                      robot_front_rgbd_camera_link:
-                        robot_front_rgbd_camera_color_frame:
-                          robot_front_rgbd_camera_color_optical_frame:
-                            {}
-                        robot_front_rgbd_camera_depth_frame:
-                          robot_front_rgbd_camera_depth_optical_frame:
-                            {}
-                        robot_front_rgbd_camera_infra1_frame:
-                          robot_front_rgbd_camera_infra1_optical_frame:
-                            {}
-                        robot_front_rgbd_camera_infra2_frame:
-                          robot_front_rgbd_camera_infra2_optical_frame:
-                            {}
-                    robot_front_right_wheel_link:
-                      {}
-                    robot_imu_base_link:
-                      robot_imu_link:
-                        {}
-                    robot_rear_laser_base_link:
-                      robot_rear_laser_link:
-                        robot_rear_laser_link_calibrated:
-                          {}
-                    robot_top_cover:
-                      {}
+          Tree: {}
           Update Interval: 0
           Value: true
       Enabled: true
@@ -452,7 +212,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Best Effort
-            Value: top_laser/points
+            Value: top_lidar/points
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
@@ -701,7 +461,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: $(var frame_prefix)map
+    Fixed Frame: $(var frame_prefix)odom
     Frame Rate: 30
   Name: root
   Tools:

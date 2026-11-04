@@ -89,12 +89,13 @@ to match its spawn position, or configure the corresponding localization profile
 
 ## Deployment
 
-All five modules are direct children of `bringup_complete.launch.py`:
+The modules are direct children of `bringup_complete.launch.py`:
 
 | Module | Entry | Started when | Delay |
 |---|---|---|---|
 | [Gazebo world](../../robotnik_gazebo_ignition/README.md#spawn-world) | `spawn_world.launch.py` | `run_world=true` | None |
 | [Robot spawn](../../robotnik_gazebo_ignition/README.md#spawn-robot) | `spawn_robot.launch.py` | Always | None |
+| Scan preparation | `localization_scan.launch.py` | `run_scan_pipeline=true` and localization or navigation starts | None |
 | [Localization](../robotnik_simulation_localization/README.md) | `localization.launch.py` | `run_localization=true` and family profile available | 10 s |
 | [Navigation](../robotnik_simulation_navigation/README.md) | `navigation.launch.py` | `run_navigation=true` and family profile available | 15 s |
 | [MoveIt](../robotnik_simulation_moveit/README.md) | `moveit.launch.py` | `run_moveit=true` | 25 s |
@@ -108,10 +109,13 @@ to the children that consume them. Their configuration scopes are isolated;
 the enclosing ROS namespace and environment are preserved. Child defaults do
 not replace the values passed by bringup.
 
-The localization module owns scan preparation, including pointcloud-to-laserscan
-conversion or laser merging selected by the robot profile. It replaces the old
-bringup `laser_filters.launch.py` workflow; there is no `run_laser_filters`
-argument in this launch.
+Bringup owns one scan pipeline, independently of AMCL and SLAM, whenever
+localization or navigation starts and `run_scan_pipeline=true`. Children receive
+`run_scan_pipeline=false` to prevent duplicates. This also supports navigation
+with an external localizer (`run_localization=false`). Set `run_scan_pipeline=false`
+when an external publisher supplies the configured scan topic. Missing scan
+profiles skip both dependent modules with a warning when the internal pipeline
+is requested. With both modules disabled, no pipeline starts.
 
 ## Visualization
 
@@ -125,7 +129,7 @@ is made at startup and does not close windows belonging to other sessions.
 
 ## Arguments
 
-All 22 arguments are optional:
+All 26 arguments are optional:
 
 | Argument | Default | Effect |
 |---|---|---|
@@ -150,7 +154,9 @@ All 22 arguments are optional:
 | `x` | `0.0` | Initial robot X coordinate, in metres |
 | `y` | `0.0` | Initial robot Y coordinate, in metres |
 | `z` | `0.0` | Initial robot Z coordinate, in metres |
-| `run_mapping` | `false` | Forward the mode to localization; see its [mapping workflow](../robotnik_simulation_localization/README.md#mapping-with-the-current-launch-behavior) |
+| `run_scan_pipeline` | `true` | Prepare scans once for localization or navigation |
+| `mapping_autostart` | `true` | Activate SLAM and map_saver automatically |
+| `run_mapping` | `false` | Forward the mode to localization; see its [mapping workflow](../robotnik_simulation_localization/README.md#mapping) |
 
 Description overrides do not replace the control, bridge or manipulation
 profiles selected by family and variant. See the
@@ -159,9 +165,9 @@ profiles selected by family and variant. See the
 ## Mapping and manipulation
 
 For scan preparation, SLAM activation, map saving and loading a map for AMCL,
-follow the [localization guide](../robotnik_simulation_localization/README.md#mapping-with-the-current-launch-behavior).
-The mapping branch currently requires the scan pipeline to be started separately
-and its lifecycle manager to be activated, including when selected by bringup.
+follow the [localization guide](../robotnik_simulation_localization/README.md#mapping).
+Mapping prepares scans and activates its lifecycle automatically by default.
+`run_mapping` selects the mode only when `run_localization=true`.
 
 For a running robot with matching manipulation controllers, start MoveIt in a
 separate terminal:

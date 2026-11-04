@@ -52,7 +52,7 @@ def _pointcloud_parameters(use_sim_time, frame_prefix, pcl_config):
 
 
 def _build_pointcloud_to_laserscan(use_sim_time, frame_prefix, output_topic, pcl_config):
-    input_topic = pcl_config.get("input_topic", "top_laser/points")
+    input_topic = pcl_config.get("input_topic", "top_lidar/points")
     parameters = _pointcloud_parameters(use_sim_time, frame_prefix, pcl_config)
 
     return [

@@ -29,7 +29,7 @@ import tempfile
 import yaml
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, LogInfo, OpaqueFunction
 from launch.event_handlers import OnShutdown
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import EqualsSubstitution
@@ -115,10 +115,16 @@ def launch_setup(context, params):
         package_path = FindPackageShare('robotnik_gazebo_ignition').perform(context)
 
         templates_config = load_yaml(package_path, 'config/bridge_templates.yaml') or {}
-        profile_config = load_yaml(
-            package_path,
-            f'config/profile/{robot}/{robot_model}_bridges.yaml',
-        ) or {}
+        profile_path = Path(package_path) / 'config' / 'profile' / robot / f'{robot_model}_bridges.yaml'
+        default_path = profile_path.with_name(f'{robot}_bridges.yaml')
+        if not profile_path.is_file():
+            if not default_path.is_file():
+                raise FileNotFoundError(
+                    f"No bridge profile found. Tried {profile_path} and {default_path}"
+                )
+            ret.append(LogInfo(msg=f"[WARN] Bridge profile {profile_path} is missing; using {default_path}"))
+            profile_path = default_path
+        profile_config = load_yaml(package_path, str(profile_path)) or {}
 
         templates = templates_config.get('templates', {})
         bridge_items = profile_config.get('bridges', [])
@@ -262,12 +268,14 @@ def _launch_spawn_rviz(context, params):
     model = params['robot_model'].perform(context)
 
     if override:
-        rviz_src_patha = override
+        rviz_src_path = override
     else:
         rviz_src_path = PathJoinSubstitution([
             FindPackageShare('robotnik_gazebo_ignition'), 'config', 'rviz_config.rviz',
         ]).perform(context)
 
+    if not os.path.isfile(rviz_src_path):
+        raise FileNotFoundError(f"Spawn RViz configuration was not found: {rviz_src_path}")
     with open(rviz_src_path, 'r') as f:
         content = f.read()
 

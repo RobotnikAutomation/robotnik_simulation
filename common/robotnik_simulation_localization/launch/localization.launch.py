@@ -34,6 +34,8 @@ from launch.conditions import IfCondition, UnlessCondition
 def generate_launch_description():
 
     declared_arguments = [
+        DeclareLaunchArgument("run_scan_pipeline", default_value="true"),
+        DeclareLaunchArgument("mapping_autostart", default_value="true"),
         DeclareLaunchArgument(
             "robot_id",
             default_value="robot",
@@ -79,7 +81,7 @@ def generate_launch_description():
             'robot': robot,
             'frame_prefix': frame_prefix,
         }.items(),
-        condition=UnlessCondition(run_mapping)
+        condition=IfCondition(LaunchConfiguration("run_scan_pipeline"))
     )
 
     localization_2d = IncludeLaunchDescription(
@@ -104,6 +106,7 @@ def generate_launch_description():
             ])
         ),
         launch_arguments={
+            'mapping_autostart': LaunchConfiguration('mapping_autostart'),
             'robot_id': robot_id,
             'use_sim_time': use_sim_time,
             'robot': robot,

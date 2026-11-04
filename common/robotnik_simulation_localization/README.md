@@ -36,19 +36,20 @@ see the [navigation guide](../robotnik_simulation_navigation/README.md).
 | `frame_prefix` | `<robot_id>_` | Prefix of configured frames |
 | `use_sim_time` | `true` | Clock for localization nodes and scan components |
 | `run_mapping` | `false` | Select SLAM instead of the AMCL branch |
+| `run_scan_pipeline` | `true` | Prepare scans in either mode; false uses an existing publisher |
+| `mapping_autostart` | `true` | Activate SLAM and map_saver automatically |
 
-`localization.launch.py` accepts all five. The leaves
+`localization.launch.py` accepts all seven. The leaves
 `localization_scan.launch.py`, `localization_2d.launch.py` and
 `mapping_2d.launch.py` each accept the first four with the same defaults.
+Mapping also accepts `mapping_autostart`.
 Bringup passes the family explicitly; its default is `rbsummit`.
 
 ```text
 localization.launch.py
-├── run_mapping=false
-│   ├── localization_scan.launch.py
-│   └── localization_2d.launch.py → AMCL + map server + lifecycle
-└── run_mapping=true
-    └── mapping_2d.launch.py → SLAM + map saver + lifecycle
+├── run_scan_pipeline=true → localization_scan.launch.py
+├── run_mapping=false → localization_2d.launch.py → AMCL + map server + lifecycle
+└── run_mapping=true → mapping_2d.launch.py → SLAM + map saver + lifecycle
 ```
 
 A family profile is selected from
@@ -61,37 +62,36 @@ Its `target_frame` is a suffix to which the launch adds `frame_prefix`. Changing
 its output topic requires matching changes in AMCL, SLAM and costmap consumers.
 See the [profile guide](../robotnik_simulation_robots/README.md).
 
-## Mapping with the current launch behavior
+## Mapping
 
-Start simulation without AMCL/navigation:
+For a complete simulation with mapping and navigation:
 
 ```bash
 ros2 launch robotnik_simulation_bringup bringup_complete.launch.py \
-  run_localization:=false run_navigation:=false
+  robot:=rbsummit run_mapping:=true
 ```
 
-In separate terminals, source the workspace and start the scan pipeline and
-mapping branch using the same family, instance, prefix and clock:
-
-```bash
-ros2 launch robotnik_simulation_localization localization_scan.launch.py robot:=rbsummit
-```
+For an already spawned robot, start mapping independently:
 
 ```bash
 ros2 launch robotnik_simulation_localization localization.launch.py \
   robot:=rbsummit run_mapping:=true
 ```
 
-The current mapping branch does not start the scan pipeline automatically and
-its lifecycle manager has autostart false. Activate it with:
+Both paths prepare scans and activate SLAM and map_saver automatically. Do not
+start another scan pipeline. Pass `run_scan_pipeline:=false` if a publisher is
+already supplying `localization/scan` in this robot's namespace.
+
+For manual lifecycle activation, start with `mapping_autostart:=false`, then:
 
 ```bash
 ros2 service call /robot/lifecycle_manager_mapping/manage_nodes \
   nav2_msgs/srv/ManageLifecycleNodes "{command: 0}"
 ```
 
-Setting `run_mapping=true` on bringup selects this same branch; it does not
-supply the missing scan pipeline or activate its lifecycle manager.
+When combining standalone localization and navigation, let localization own the
+pipeline and pass `run_scan_pipeline:=false` to navigation. Direct leaf launches
+such as `mapping_2d.launch.py` do not prepare scans themselves.
 
 ## Saving a map
 

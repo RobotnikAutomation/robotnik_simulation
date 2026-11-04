@@ -129,6 +129,7 @@ The entrypoint translates nonempty settings from `env/robot.env`:
 | `RUN_GAZEBO_GUI`, `USE_NVIDIA_GPU` | Gazebo window and optional PRIME rendering |
 | `RUN_LOCALIZATION`, `RUN_NAVIGATION`, `RUN_MOVEIT` | Independent modules; defaults true, true, false |
 | `RUN_SPAWN_RVIZ`, `SPAWN_RVIZ_CONFIG` | Basic view, omitted when navigation starts |
+| `RUN_SCAN_PIPELINE`, `MAPPING_AUTOSTART` | Shared scan preparation and automatic mapping lifecycle activation |
 | `LOW_PERFORMANCE_SIMULATION`, `RUN_MAPPING` | Sensor performance settings and localization mode |
 | `WORLD`, `WORLD_PATH`, `X`, `Y`, `Z` | World selection and spawn coordinates |
 

@@ -31,7 +31,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
 from launch_ros.actions import PushRosNamespace
-from launch_ros.parameter_descriptions import ParameterFile
+from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 
 def _resolve_slam_toolbox_config(context):
     robot = LaunchConfiguration("robot").perform(context)
@@ -97,7 +97,7 @@ def _launch_setup(context, *_args, **_kwargs):
         parameters=[
             {
                 'use_sim_time': use_sim_time,
-                'autostart': False,
+                'autostart': ParameterValue(LaunchConfiguration('mapping_autostart'), value_type=bool),
                 'node_names': [
                     'slam_toolbox_mapping',
                     'map_saver'
@@ -119,6 +119,7 @@ def _launch_setup(context, *_args, **_kwargs):
 
 def generate_launch_description():
     declared_arguments = [
+        DeclareLaunchArgument("mapping_autostart", default_value="true"),
         DeclareLaunchArgument(
             "robot_id",
             default_value="robot",

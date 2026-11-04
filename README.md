@@ -78,7 +78,7 @@ selection, optional modules and launch arguments.
 | Package | Responsibility |
 |---|---|
 | [Gazebo](robotnik_gazebo_ignition/README.md) | Source installation, world, spawn, base view and rendering |
-| [Bringup](common/robotnik_simulation_bringup/README.md) | Integrated startup and all 22 top-level arguments |
+| [Bringup](common/robotnik_simulation_bringup/README.md) | Integrated startup and top-level arguments |
 | [Localization](common/robotnik_simulation_localization/README.md) | Scan pipeline, AMCL, SLAM and map saving |
 | [Navigation](common/robotnik_simulation_navigation/README.md) | Nav2 and its RViz |
 | [MoveIt](common/robotnik_simulation_moveit/README.md) | Manipulation and generic manipulation RViz |

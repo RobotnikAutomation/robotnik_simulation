@@ -33,7 +33,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 
-LOCALIZATION_FILES = ("localization_scan.yaml", "amcl.yaml")
+LOCALIZATION_FILES = ("amcl.yaml",)
 NAVIGATION_FILES = (
     "controller_server.yaml", "planner_server.yaml", "behavior_server.yaml",
     "smoother_server.yaml", "bt_navigator.yaml", "waypoint_follower.yaml", "route_server.yaml",
@@ -91,11 +91,16 @@ def _launch_setup(context):
     enabled = lambda name: IfCondition(values[name]).evaluate(context)
     messages = []
     localization = enabled("run_localization") and _component_available(
-        context, values["robot"], "localization", LOCALIZATION_FILES, messages,
+        context, values["robot"], "localization", ("slam_toolbox.yaml",) if enabled("run_mapping") else LOCALIZATION_FILES, messages,
     )
     navigation = enabled("run_navigation") and _component_available(
         context, values["robot"], "navigation", NAVIGATION_FILES, messages,
     )
+    scan_available = not enabled("run_scan_pipeline") or not (localization or navigation) or _component_available(
+        context, values["robot"], "localization", ("localization_scan.yaml",), messages,
+    )
+    if not scan_available:
+        localization = navigation = False
     has_arm = _has_manipulation(context, values["robot"], values["robot_model"])
     moveit = enabled("run_moveit") and has_arm
     if not has_arm and enabled("run_moveit"):
@@ -117,12 +122,15 @@ def _launch_setup(context):
         **{name: values[name] for name in ("x", "y", "z", "low_performance_simulation", "spawn_rviz_config")},
         "run_spawn_rviz": str(enabled("run_spawn_rviz") and not navigation).lower(),
     }))
+    if enabled("run_scan_pipeline") and (localization or navigation):
+        actions.append(_include("robotnik_simulation_localization", "localization_scan.launch.py", common))
     if localization:
         actions.append(_include("robotnik_simulation_localization", "localization.launch.py", {
             **common, "run_mapping": values["run_mapping"],
+            "run_scan_pipeline": "false", "mapping_autostart": values["mapping_autostart"],
         }, delay=10.0))
     if navigation:
-        actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", common, delay=15.0))
+        actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", {**common, "run_scan_pipeline": "false"}, delay=15.0))
     if moveit:
         actions.append(_include("robotnik_simulation_moveit", "moveit.launch.py", description, delay=25.0))
     return actions
@@ -132,12 +140,14 @@ ARGUMENT_NAMES = (
     "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type",
     "use_sim_time", "run_world", "run_gazebo_gui", "use_nvidia_gpu", "run_localization", "run_navigation", "run_moveit",
     "run_spawn_rviz", "spawn_rviz_config", "low_performance_simulation",
-    "world", "world_path", "x", "y", "z", "run_mapping",
+    "world", "world_path", "x", "y", "z", "run_mapping", "run_scan_pipeline", "mapping_autostart",
 )
 
 
 def generate_launch_description():
     arguments = [
+        DeclareLaunchArgument("run_scan_pipeline", default_value="true"),
+        DeclareLaunchArgument("mapping_autostart", default_value="true"),
         DeclareLaunchArgument("robot_id", default_value="robot", description="Robot instance / namespace"),
         DeclareLaunchArgument("robot", default_value="rbsummit", description="Robot family"),
         DeclareLaunchArgument("robot_model", default_value=LaunchConfiguration("robot"), description="Robot variant"),

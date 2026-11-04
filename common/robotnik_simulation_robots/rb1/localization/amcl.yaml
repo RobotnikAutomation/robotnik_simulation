@@ -7,7 +7,7 @@
       global_frame_id: $(var frame_prefix)map
       odom_frame_id: $(var frame_prefix)odom
       robot_model_type: nav2_amcl::DifferentialMotionModel
-      scan_topic: front_laser/scan
+      scan_topic: localization/scan
 
       set_initial_pose: true
       initial_pose:

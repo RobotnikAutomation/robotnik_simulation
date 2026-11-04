@@ -16,7 +16,7 @@
       map_frame: $(var frame_prefix)map
       base_frame: $(var frame_prefix)base_footprint
       map_name: map
-      scan_topic: front_laser/scan
+      scan_topic: localization/scan
 
       # localization
       mode: mapping
