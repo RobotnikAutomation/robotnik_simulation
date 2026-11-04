@@ -279,3 +279,73 @@ def test_installed_profile_resources_are_preserved():
     assert profiles
     for path in profiles:
         assert (installed / path.relative_to(source)).is_file(), path.relative_to(source)
+
+
+@pytest.mark.parametrize('robot,kind,topic', [
+    ('rbsummit', 'Twist', 'cmd_vel_unstamped'),
+    ('rbcar', 'TwistStamped', 'cmd_vel'),
+])
+def test_navigation_teleop_matches_controller(robot, kind, topic):
+    launch = module('robotnik_simulation_navigation', 'navigation.launch.py')
+    context = context_for(launch, robot=robot, robot_id='fleet_beta', frame_prefix='custom_')
+    node, = launch._launch_rviz(context)
+    args = [perform_substitutions(context, normalize_to_list_of_substitutions(x))
+            for x in node._Node__arguments]
+    path = Path(args[args.index('-d') + 1])
+    try:
+        data = yaml.safe_load(path.read_text())
+        panel = next(p for p in data['Panels'] if p['Class'] == 'teleop_panel/Teleop')
+        assert panel['CommandMessageType'] == kind
+        assert panel['Topic'] == f'/fleet_beta/robotnik_base_control/{topic}'
+        assert panel['CommandFrameId'] == 'custom_base_link'
+    finally:
+        path.unlink()
+
+
+def test_docker_entrypoint_forwards_scan_mapping_and_rviz(tmp_path):
+    import json
+    import os
+    import subprocess
+    executable = tmp_path / 'ros2'
+    executable.write_text('#!/usr/bin/python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n')
+    executable.chmod(0o755)
+    rviz = str(tmp_path / 'custom view.rviz')
+    env_file = tmp_path / 'robot.env'
+    env_file.write_text(f'RUN_SCAN_PIPELINE=false\nMAPPING_AUTOSTART=false\nSPAWN_RVIZ_CONFIG="{rviz}"\n')
+    env = dict(os.environ, PATH=f'{tmp_path}:{os.environ["PATH"]}',
+               ROS_DISTRO='pr78-test-without-setup', WORKSPACE_DIR=str(tmp_path),
+               ROBOTNIK_ENV_FILE=str(env_file), WORLD='', WORLD_PATH='',
+               ROBOTNIK_LAUNCH_ARGS='', RUNTIME_AUTOSTART='true')
+    process = subprocess.run(['bash', str(ROOT / 'docker/runtime-entrypoint.sh')],
+                             env=env, text=True, capture_output=True, check=True)
+    args = json.loads(process.stdout.splitlines()[-1])
+    assert 'run_scan_pipeline:=false' in args
+    assert 'mapping_autostart:=false' in args
+    assert f'spawn_rviz_config:={rviz}' in args
+
+
+def test_custom_navigation_rviz_is_preserved_for_rbcar(tmp_path):
+    launch = module('robotnik_simulation_navigation', 'navigation.launch.py')
+    source = tmp_path / 'custom.rviz'
+    source.write_text('Panels:\n  - Class: teleop_panel/Teleop\n    CommandMessageType: Twist\n    Topic: custom/velocity\n')
+    context = context_for(launch, robot='rbcar', navigation_rviz_config=str(source))
+    node, = launch._launch_rviz(context)
+    args = [perform_substitutions(context, normalize_to_list_of_substitutions(x))
+            for x in node._Node__arguments]
+    path = Path(args[args.index('-d') + 1])
+    try:
+        assert yaml.safe_load(path.read_text()) == yaml.safe_load(source.read_text())
+    finally:
+        path.unlink()
+
+
+def test_pointcloud_bridges_and_views_use_the_same_ros_topic():
+    for path in (ROOT / 'robotnik_gazebo_ignition/config/profile').glob('*/*_bridges.yaml'):
+        bridges = yaml.safe_load(path.read_text())['bridges']
+        for bridge in bridges:
+            if bridge['template'] == 'point_cloud' and bridge.get('name') == 'top_lidar':
+                assert bridge['ros_topic'] == 'top_lidar/points', path
+    for path in [ROOT / 'robotnik_gazebo_ignition/config/rviz_config.rviz',
+                 ROOT / 'common/robotnik_simulation_navigation/config/navigation.rviz']:
+        assert 'top_lidar/points' in path.read_text()
+        assert 'top_laser/points' not in path.read_text()

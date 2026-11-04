@@ -23,6 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from pathlib import Path
+
+import yaml
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, OpaqueFunction
 from launch.conditions import IfCondition
@@ -40,6 +44,15 @@ def _launch_rviz(context):
         FindPackageShare("robotnik_simulation_navigation"), "config", "navigation.rviz",
     ]), allow_substs=True)
     path = str(config.evaluate(context))
+    if not override and LaunchConfiguration("robot").perform(context) == "rbcar":
+        # The Ackermann controller receives TwistStamped on cmd_vel.
+        # ParameterFile owns this substituted temporary file; preserve overrides.
+        view = yaml.safe_load(Path(path).read_text())
+        for panel in view.get("Panels", []):
+            if panel.get("Class") == "teleop_panel/Teleop":
+                panel["CommandMessageType"] = "TwistStamped"
+                panel["Topic"] = panel["Topic"].removesuffix("_unstamped")
+        Path(path).write_text(yaml.safe_dump(view, sort_keys=False))
     context.register_event_handler(OnShutdown(
         on_shutdown=lambda event, context: config.cleanup(),
     ))

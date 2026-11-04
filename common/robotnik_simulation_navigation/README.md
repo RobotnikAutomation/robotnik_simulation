@@ -91,6 +91,10 @@ The display tree is organized into groups:
   covariance (`amcl_pose`), and optional AMCL particles (`particle_cloud`,
   disabled initially). When using SLAM, disable the AMCL displays.
 
+The default teleop panel uses Twist on `robotnik_base_control/cmd_vel_unstamped`.
+For `robot:=rbcar`, the launcher selects TwistStamped on
+`robotnik_base_control/cmd_vel`; custom RViz overrides retain their own settings.
+
 The navigation view uses the prefixed `map` frame. Sensor, navigation and
 localization display topics are relative to the robot namespace. The standard
 sensor examples use Best Effort reliability, and the robot description uses
