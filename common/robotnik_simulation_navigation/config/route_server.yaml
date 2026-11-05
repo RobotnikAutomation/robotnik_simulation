@@ -9,8 +9,8 @@
       radius_to_achieve_node: 0.1
       smooth_corners: true
       smoothing_radius: 0.2
-      route_frame: robot_map 
-      base_frame: robot_base_link
+      route_frame: $(var frame_prefix)map
+      base_frame: $(var frame_prefix)base_link
       operations: ["AdjustSpeedLimit", "ReroutingService", "CollisionMonitor"]
       ReroutingService:
         plugin: "nav2_route::ReroutingService"
@@ -24,4 +24,4 @@
         plugin: "nav2_route::DistanceScorer"
       CostmapScorer:
         plugin: "nav2_route::CostmapScorer"
-      prune_goal: true   
+      prune_goal: true

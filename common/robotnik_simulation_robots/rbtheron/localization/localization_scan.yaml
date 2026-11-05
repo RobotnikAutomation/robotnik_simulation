@@ -1,0 +1,30 @@
+mode: merge
+output_topic: localization/scan
+
+merge:
+  target_frame: base_link
+  input_topics:
+    - front_laser/scan
+    - rear_laser/scan
+  laser_1_x_offset: 0.0
+  laser_1_y_offset: 0.0
+  laser_1_yaw_offset: 0.0
+  laser_2_x_offset: 0.0
+  laser_2_y_offset: 0.0
+  laser_2_yaw_offset: 0.0
+  tolerance: 0.01
+  queue_size: 5
+  publish_rate: 100
+  scan_time: 0.06667
+  min_height: -1.0
+  max_height: 1.0
+  angle_min: -3.14159
+  angle_max: 3.14159
+  angle_increment: 0.01704
+  range_min: 0.05
+  range_max: 25.0
+  inf_epsilon: 1.0
+  use_inf: true
+  allowed_radius: 0.45
+  enable_shadow_filter: false
+  enable_average_filter: false

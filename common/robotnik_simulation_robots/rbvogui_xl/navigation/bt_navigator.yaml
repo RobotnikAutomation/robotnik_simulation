@@ -1,0 +1,19 @@
+/**:
+  bt_navigator:
+    ros__parameters:
+      global_frame: $(var frame_prefix)map
+      robot_base_frame: $(var frame_prefix)base_link
+      bt_loop_duration: 10
+      default_server_timeout: 20
+      wait_for_service_timeout: 1000
+      action_server_result_timeout: 900.0
+
+      navigators: ["navigate_to_pose","navigate_through_poses"]
+      navigate_to_pose:
+        plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+      navigate_through_poses:
+        plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+
+      error_code_name_prefixes:
+        - compute_path_error_code
+        - follow_path_error_code

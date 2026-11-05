@@ -3,11 +3,11 @@
   amcl:
     ros__parameters:
       use_sim_time: true
-      base_frame_id: robot_base_footprint
-      global_frame_id: robot_map
-      odom_frame_id: robot_odom
+      base_frame_id: $(var frame_prefix)base_footprint
+      global_frame_id: $(var frame_prefix)map
+      odom_frame_id: $(var frame_prefix)odom
       robot_model_type: nav2_amcl::DifferentialMotionModel
-      scan_topic: /robot/front_laser/scan
+      scan_topic: localization/scan
 
       set_initial_pose: true
       initial_pose:
@@ -20,15 +20,19 @@
       alpha2: 0.005
       alpha3: 0.02
       alpha4: 0.02
+      # Applies to omni motion models only.
       alpha5: 0.0
       beam_skip_distance: 0.5
       beam_skip_error_threshold: 0.9
       beam_skip_threshold: 0.3
       do_beamskip: false
+      # Use the effective scan range reported by the input sensor or pipeline.
+      # Override these only when intentional clipping improves robustness.
+      # If scan_topic points to localization/scan, that pipeline defines the range.
+      laser_min_range: -1.0
+      laser_max_range: -1.0
       lambda_short: 0.1
       laser_likelihood_max_dist: 0.15
-      laser_max_range: 10.0
-      laser_min_range: -1.0
       laser_model_type: "likelihood_field"
       max_beams: 60
       max_particles: 2000

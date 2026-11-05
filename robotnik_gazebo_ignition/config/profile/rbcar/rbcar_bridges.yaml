@@ -1,0 +1,25 @@
+bridges:
+  - template: imu
+    name: imu
+    gz_topic: imu/data
+    ros_topic: imu/data
+
+  - template: gps
+    name: gps
+    gz_topic: gps/data
+    ros_topic: gps/fix
+
+  - template: point_cloud
+    name: top_lidar
+    gz_topic: top_lidar/scan/points
+    ros_topic: top_lidar/points
+
+  - template: point_cloud
+    name: front_lidar
+    gz_topic: front_lidar/scan/points
+    ros_topic: front_lidar/points
+
+  - template: laser_scan
+    name: rear_laser
+    gz_topic: rear_laser/scan
+    ros_topic: rear_laser/scan

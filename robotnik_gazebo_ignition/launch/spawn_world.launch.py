@@ -22,101 +22,56 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import os
 from launch import LaunchDescription
-from launch.actions import GroupAction, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from launch.conditions import IfCondition
-from launch.substitutions import PythonExpression
-from robotnik_common.launch import ExtendedArgument, AddArgumentParser
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-
-from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    arguments = [
+        DeclareLaunchArgument("world", default_value="demo", description="Built-in Gazebo world name"),
+        DeclareLaunchArgument("world_path", default_value=[
+            FindPackageShare("robotnik_gazebo_ignition"), "/worlds/", LaunchConfiguration("world"), ".world",
+        ], description="World file override"),
+        DeclareLaunchArgument("run_gazebo_gui", default_value="true"),
+        DeclareLaunchArgument(
+            "use_nvidia_gpu", default_value="false",
+            description="Request NVIDIA PRIME render offload for Gazebo server and GUI",
+        ),
+    ]
+    def source():
+        # LaunchDescriptionSource caches actions; server and GUI need distinct instances.
+        return PythonLaunchDescriptionSource(PathJoinSubstitution([
+            FindPackageShare("ros_gz_sim"), "launch", "gz_sim.launch.py",
+        ]))
 
-    ld = LaunchDescription()
-    add_to_launcher = AddArgumentParser(ld)
-    world = LaunchConfiguration('world')
-
-    arg = ExtendedArgument(
-        name='world',
-        description='world in gazebo classic',
-        default_value='demo',
+    server = IncludeLaunchDescription(source(), launch_arguments={
+        "gz_args": ["-r -s ", LaunchConfiguration("world_path")],
+        "on_exit_shutdown": "true",
+    }.items())
+    gui = IncludeLaunchDescription(source(), launch_arguments={
+        "gz_args": "-g", "on_exit_shutdown": "true",
+    }.items())
+    clock = Node(
+        package="ros_gz_bridge", executable="parameter_bridge", name="gz_clock_bridge",
+        output="screen", arguments=["/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"],
     )
-    add_to_launcher.add_arg(arg)
-
-    arg = ExtendedArgument(
-        name='world_path',
-        description='world path in gazebo classic',
-        default_value=[FindPackageShare('robotnik_gazebo_ignition'), '/worlds/', world, '.world'], # type: ignore
-    )
-    add_to_launcher.add_arg(arg)
-
-    arg = ExtendedArgument(
-        name='gui',
-        description='Set to true to enable gazebo gui, headless mode (default: true)',
-        default_value='true',
-    )
-    add_to_launcher.add_arg(arg)
-
-    params = add_to_launcher.process_arg()
-
-    gazebo_ignition_launch_group = GroupAction(
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(
-                        os.path.join(
-                            get_package_share_directory(
-                                'ros_gz_sim'
-                            ),
-                            'launch'
-                        ),
-                        'gz_sim.launch.py')
-                ),
-                launch_arguments={
-                    'gz_args':[
-                        '-r ',
-                        '-s ',
-                        params['world_path']
-                    ],
-                    'on_exit_shutdown':'true'
-                }.items(),
+    return LaunchDescription(arguments + [
+        GroupAction([
+            SetEnvironmentVariable(
+                "__NV_PRIME_RENDER_OFFLOAD", "1",
+                condition=IfCondition(LaunchConfiguration("use_nvidia_gpu")),
             ),
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(
-                        os.path.join(
-                            get_package_share_directory(
-                                'ros_gz_sim'
-                            ),
-                            'launch'
-                        ),
-                        'gz_sim.launch.py')
-                ),
-                launch_arguments={
-                    'gz_args':[
-                        '-g '
-                    ],
-                    'on_exit_shutdown':'true'
-                }.items(),
-                # gui is in (true, 1, yes, on) (case insensitive)
-                condition = IfCondition(PythonExpression(["'", params['gui'], "'.strip().lower() in ('true','1','yes','on')"])),
+            SetEnvironmentVariable(
+                "__GLX_VENDOR_LIBRARY_NAME", "nvidia",
+                condition=IfCondition(LaunchConfiguration("use_nvidia_gpu")),
             ),
-            Node(
-                package="ros_gz_bridge",
-                executable="parameter_bridge",
-                name="gz_clock_bridge",
-                output="screen",
-                arguments=["/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"],
-            )
-        ]
-    )
-
-    ld.add_action(gazebo_ignition_launch_group)
-
-    return ld
+            GroupAction([server], scoped=True),
+            GroupAction([gui], scoped=True, condition=IfCondition(LaunchConfiguration("run_gazebo_gui"))),
+        ], scoped=True),
+        clock,
+    ])

@@ -1,0 +1,52 @@
+templates:
+  imu:
+    - gz_topic_name: "/{robot_id}/{gz_topic}"
+      ros_topic_name: "/{robot_id}/{ros_topic}"
+      ros_type_name: "sensor_msgs/msg/Imu"
+      gz_type_name: "ignition.msgs.IMU"
+      direction: "GZ_TO_ROS"
+
+  gps:
+    - gz_topic_name: "/{robot_id}/{gz_topic}"
+      ros_topic_name: "/{robot_id}/{ros_topic}"
+      ros_type_name: "sensor_msgs/msg/NavSatFix"
+      gz_type_name: "ignition.msgs.NavSat"
+      direction: "GZ_TO_ROS"
+
+  laser_scan:
+    - gz_topic_name: "/{robot_id}/{gz_topic}"
+      ros_topic_name: "/{robot_id}/{ros_topic}"
+      ros_type_name: "sensor_msgs/msg/LaserScan"
+      gz_type_name: "gz.msgs.LaserScan"
+      direction: "GZ_TO_ROS"
+
+  point_cloud:
+    - gz_topic_name: "/{robot_id}/{gz_topic}"
+      ros_topic_name: "/{robot_id}/{ros_topic}"
+      ros_type_name: "sensor_msgs/msg/PointCloud2"
+      gz_type_name: "gz.msgs.PointCloudPacked"
+      direction: "GZ_TO_ROS"
+
+  rgb_camera:
+    - gz_topic_name: "/{robot_id}/{gz_topic}/color/camera_info"
+      ros_topic_name: "/{robot_id}/{ros_topic}/color/camera_info"
+      ros_type_name: "sensor_msgs/msg/CameraInfo"
+      gz_type_name: "gz.msgs.CameraInfo"
+      direction: "GZ_TO_ROS"
+    - gz_topic_name: "/{robot_id}/{gz_topic}/color/image_raw"
+      ros_topic_name: "/{robot_id}/{ros_topic}/color/image_raw"
+      ros_type_name: "sensor_msgs/msg/Image"
+      gz_type_name: "gz.msgs.Image"
+      direction: "GZ_TO_ROS"
+
+  depth_camera:
+    - gz_topic_name: "/{robot_id}/{gz_topic}/camera_info"
+      ros_topic_name: "/{robot_id}/{ros_topic}/camera_info"
+      ros_type_name: "sensor_msgs/msg/CameraInfo"
+      gz_type_name: "gz.msgs.CameraInfo"
+      direction: "GZ_TO_ROS"
+    - gz_topic_name: "/{robot_id}/{gz_topic}/image_raw"
+      ros_topic_name: "/{robot_id}/{ros_topic}/image_raw"
+      ros_type_name: "sensor_msgs/msg/Image"
+      gz_type_name: "gz.msgs.Image"
+      direction: "GZ_TO_ROS"

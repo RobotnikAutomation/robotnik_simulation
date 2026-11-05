@@ -1,0 +1,5 @@
+mode: passthrough
+output_topic: localization/scan
+
+passthrough:
+  input_topic: front_laser/scan

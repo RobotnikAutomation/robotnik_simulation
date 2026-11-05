@@ -1,0 +1,21 @@
+/**:
+  smoother_server:
+    ros__parameters:
+      robot_base_frame: $(var frame_prefix)base_link
+      smoother_plugins: ["simple_smoother", "route_smoother"]
+      simple_smoother:
+        plugin: "nav2_smoother::SimpleSmoother"
+        tolerance: 1.0e-10
+        max_its: 1000
+        refinement_num: 2
+        # True for Hybrid A* or State Lattice to not smooth over directional changes
+        enforce_path_inversion: True
+        do_refinement: True
+      route_smoother:
+        plugin: "nav2_smoother::SimpleSmoother"
+        tolerance: 1.0e-10
+        max_its: 1000
+        refinement_num: 5
+        # False for Route Server or others where smoothing out sharp corners is OK
+        enforce_path_inversion: False
+        do_refinement: True

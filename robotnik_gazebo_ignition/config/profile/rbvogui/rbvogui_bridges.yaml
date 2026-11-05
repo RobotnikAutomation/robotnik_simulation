@@ -1,0 +1,25 @@
+bridges:
+  - template: imu
+    name: imu
+    gz_topic: imu/data
+    ros_topic: imu/data
+
+  - template: laser_scan
+    name: front_laser
+    gz_topic: front_laser/scan
+    ros_topic: front_laser/scan
+
+  - template: laser_scan
+    name: rear_laser
+    gz_topic: rear_laser/scan
+    ros_topic: rear_laser/scan
+
+  - template: rgb_camera
+    name: front_camera
+    gz_topic: front_camera_color
+    ros_topic: front_rgbd_camera
+
+  - template: rgb_camera
+    name: rear_camera
+    gz_topic: rear_camera_color
+    ros_topic: rear_rgbd_camera

@@ -1,0 +1,82 @@
+/**:
+  controller_manager:
+    ros__parameters:
+      update_rate: 50
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+      robotnik_base_control:
+        type: robotnik_controllers/RBTheronController
+
+  robotnik_base_control:
+    ros__parameters:
+      publish_rate: 50
+
+      # General Params
+      profile: base
+      debug: true
+      open_loop: true
+
+      # Timeouts
+      joint_command_timeout: 0.1
+      cmd_vel_timeout: 2.0
+
+      # Odom
+      odom_frame_id: $(var frame_prefix)odom
+      base_frame_id: $(var frame_prefix)base_footprint
+      set_odometry_service: ~/set_odometry
+
+      # Kinematics Params
+      wheel_radius: 0.0762  # radius: 0.0762
+      track_width: 0.436
+      wheel_base: 0.0
+      max_steering_position_error: 0.3
+
+      # Topics
+      cmd_vel_topic: ~/cmd_vel_unstamped
+      odom_topic: ~/odom
+      imu_topic: imu/data
+      emergency_topic: robotnik_base_hw/emergency_stop
+      joint_control_topic: ~/joint_control_command
+
+      # RBTheron Controller Params
+
+      #Cartesian and wheels limits
+      base:
+        linear:
+          x:
+            velocity:
+              min: -1.2
+              max: 1.2
+            acceleration:
+              min: -100.0
+              max: 100.0
+        angular:
+          z:
+            velocity:
+              min: -1.5
+              max: 1.5
+            acceleration:
+              min: -30.0
+              max: 30.0
+
+        right:
+          traction:
+            joint_name: $(var frame_prefix)right_wheel_joint
+            limits:
+              velocity:
+                min: -27.7
+                max: 27.7
+              acceleration:
+                min: -10.0
+                max: 10.0
+
+        left:
+          traction:
+            joint_name: $(var frame_prefix)left_wheel_joint
+            limits:
+              velocity:
+                min: -27.7
+                max: 27.7
+              acceleration:
+                min: -10.0
+                max: 10.0

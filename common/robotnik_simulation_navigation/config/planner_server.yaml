@@ -13,10 +13,11 @@
   global_costmap:
     global_costmap:
       ros__parameters:
+        use_sim_time: $(var use_sim_time)
         update_frequency: 1.0
         publish_frequency: 1.0
-        global_frame: robot_map
-        robot_base_frame: robot_base_link
+        global_frame: $(var frame_prefix)map
+        robot_base_frame: $(var frame_prefix)base_link
         footprint: "[[0.4,-0.35],[0.4,0.35],[-0.4,0.35],[-0.4,-0.35]]"
         footprint_padding: 0.05
         # robot_radius: 0.6 #0.60
@@ -24,7 +25,7 @@
         track_unknown_space: true
         plugins: ["static_layer", "inflation_layer"]
         static_layer:
-          map_topic: /robot/map
+          map_topic: /$(var robot_id)/map
           plugin: "nav2_costmap_2d::StaticLayer"
           map_subscribe_transient_local: true
         inflation_layer:

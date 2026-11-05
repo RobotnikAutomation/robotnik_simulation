@@ -1,0 +1,25 @@
+bridges:
+  - template: imu
+    name: imu
+    gz_topic: imu/data
+    ros_topic: imu/data
+
+  - template: gps
+    name: gps
+    gz_topic: gps/data
+    ros_topic: gps/fix
+
+  - template: point_cloud
+    name: top_lidar
+    gz_topic: top_lidar/scan/points
+    ros_topic: top_lidar/points
+
+  - template: rgb_camera
+    name: front_camera
+    gz_topic: front_camera_color
+    ros_topic: front_rgbd_camera
+
+  - template: rgb_camera
+    name: top_ptz_camera
+    gz_topic: top_ptz_camera_color
+    ros_topic: top_ptz_rgbd_camera
