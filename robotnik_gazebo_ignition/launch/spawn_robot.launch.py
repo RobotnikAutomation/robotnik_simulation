@@ -60,6 +60,15 @@ def substitute_param_context(param, context):
 def launch_setup(context, params):
     ret = []
 
+    # Resolve the ros2_control profile once (model first, then family) so the
+    # xacro plugin and the spawner always load the same file.
+    robot = substitute_param_context(params['robot'], context)
+    robot_model = substitute_param_context(params['robot_model'], context)
+    control_dir = Path(FindPackageShare('robotnik_simulation_robots').perform(context)) / robot / 'control'
+    ros2_control_path = resolve_variant_file(control_dir, robot, robot_model, '_ros2_control.yaml')
+    if Path(ros2_control_path).name != f'{robot_model}_ros2_control.yaml':
+        ret.append(LogInfo(msg=f"[WARN] No ros2_control for model '{robot_model}'; using {ros2_control_path}"))
+
     # Compose the simulator-independent description with Gazebo ros2_control.
     gazebo_robot_xacro = PathJoinSubstitution([
         FindPackageShare('robotnik_description'),
@@ -74,7 +83,7 @@ def launch_setup(context, params):
         ' robot:=', params['robot'],
         ' namespace:=', params['robot_id'],
         ' prefix:=', params['frame_prefix'],
-        ' controller_config:=', params['robot_model'], '_ros2_control.yaml',
+        ' controller_config:=', Path(ros2_control_path).name,
         ' gazebo_ignition:=true',
         ' ur_type:=', params['arm_type'],
         ' low_performance:=', params['low_performance_simulation'],
@@ -180,16 +189,7 @@ def launch_setup(context, params):
 
         return existing_controllers
 
-    def get_ros2_control_yaml_path(params):
-        base_path = (
-            Path(FindPackageShare('robotnik_simulation_robots').perform(context))
-            / substitute_param_context(params['robot'], context)
-            / 'control'
-        )
-        robot_model = substitute_param_context(params['robot_model'], context)
-        return str(base_path / f'{robot_model}_ros2_control.yaml')
-
-    path = get_ros2_control_yaml_path(params)
+    path = ros2_control_path
     new_controllers = extract_controllers_from_yaml(path)
 
     # ROS2 control
