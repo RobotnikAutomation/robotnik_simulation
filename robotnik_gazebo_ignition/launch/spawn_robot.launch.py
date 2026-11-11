@@ -60,6 +60,15 @@ def substitute_param_context(param, context):
 def launch_setup(context, params):
     ret = []
 
+    # Resolve the ros2_control profile once (model first, then family) so the
+    # xacro plugin and the spawner always load the same file.
+    robot = substitute_param_context(params['robot'], context)
+    robot_model = substitute_param_context(params['robot_model'], context)
+    control_dir = Path(FindPackageShare('robotnik_simulation_robots').perform(context)) / robot / 'control'
+    ros2_control_path = resolve_variant_file(control_dir, robot, robot_model, '_ros2_control.yaml')
+    if Path(ros2_control_path).name != f'{robot_model}_ros2_control.yaml':
+        ret.append(LogInfo(msg=f"[WARN] No ros2_control for model '{robot_model}'; using {ros2_control_path}"))
+
     # Compose the simulator-independent description with Gazebo ros2_control.
     gazebo_robot_xacro = PathJoinSubstitution([
         FindPackageShare('robotnik_description'),
@@ -74,7 +83,7 @@ def launch_setup(context, params):
         ' robot:=', params['robot'],
         ' namespace:=', params['robot_id'],
         ' prefix:=', params['frame_prefix'],
-        ' controller_config:=', params['robot_model'], '_ros2_control.yaml',
+        ' controller_config:=', Path(ros2_control_path).name,
         ' gazebo_ignition:=true',
         ' ur_type:=', params['arm_type'],
         ' low_performance:=', params['low_performance_simulation'],
@@ -106,6 +115,7 @@ def launch_setup(context, params):
             '-x', params['x'],
             '-y', params['y'],
             '-z', params['z'],
+            '-Y', params['yaw'],
         ],
         output='screen',
     ))
@@ -150,7 +160,10 @@ def launch_setup(context, params):
 
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
             yaml.dump(bridge_config, tmp)
-            return tmp.name
+        context.register_event_handler(OnShutdown(
+            on_shutdown=lambda event, ctx: os.remove(tmp.name) if os.path.exists(tmp.name) else None,
+        ))
+        return tmp.name
 
     bridge_yaml = generate_bridge_yaml(params)
     ret.append(Node(
@@ -180,16 +193,7 @@ def launch_setup(context, params):
 
         return existing_controllers
 
-    def get_ros2_control_yaml_path(params):
-        base_path = (
-            Path(FindPackageShare('robotnik_simulation_robots').perform(context))
-            / substitute_param_context(params['robot'], context)
-            / 'control'
-        )
-        robot_model = substitute_param_context(params['robot_model'], context)
-        return str(base_path / f'{robot_model}_ros2_control.yaml')
-
-    path = get_ros2_control_yaml_path(params)
+    path = ros2_control_path
     new_controllers = extract_controllers_from_yaml(path)
 
     # ROS2 control
@@ -277,6 +281,14 @@ def _launch_spawn_rviz(context, params):
         content = f.read()
 
     updated_content = content.replace('$(var frame_prefix)', frame_prefix)
+    if not override and params['robot'].perform(context) == 'rbcar':
+        # The Ackermann controller receives TwistStamped on cmd_vel.
+        view = yaml.safe_load(updated_content)
+        for panel in view.get('Panels', []):
+            if panel.get('Class') == 'teleop_panel/Teleop':
+                panel['CommandMessageType'] = 'TwistStamped'
+                panel['Topic'] = panel['Topic'].removesuffix('_unstamped')
+        updated_content = yaml.safe_dump(view, sort_keys=False)
 
     temp_rviz = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.rviz')
     temp_rviz.write(updated_content)
@@ -306,6 +318,7 @@ def generate_launch_description():
         ('x', 'Initial X Coordinate', '0.0'),
         ('y', 'Initial Y Coordinate', '0.0'),
         ('z', 'Initial Z Coordinate', '0.0'),
+        ('yaw', 'Initial yaw in radians', '0.0'),
         ('arm_type', 'Type of robotic arm', 'ur10e'),
         ('run_spawn_rviz', 'Run basic RViz', 'true'),
         ('spawn_rviz_config', 'Basic RViz configuration override', ''),

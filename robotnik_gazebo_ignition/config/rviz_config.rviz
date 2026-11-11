@@ -34,7 +34,7 @@ Panels:
     SyncMode: 0
     SyncSource: Localization Scan
   - Class: teleop_panel/Teleop
-    CommandFrameId: base_link
+    CommandFrameId: $(var frame_prefix)base_link
     CommandMessageType: Twist
     MaxAngular: 1
     MaxLinear: 1

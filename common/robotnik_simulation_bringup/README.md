@@ -148,12 +148,14 @@ All 26 arguments are optional:
 | `run_moveit` | `false` | Request MoveIt for a matching manipulation variant |
 | `run_spawn_rviz` | `true` | Request the basic view when navigation is not started |
 | `spawn_rviz_config` | Empty | Basic RViz override passed to spawn; empty selects its default |
+| `run_navigation_rviz` | `true` | Start the navigation RViz when navigation runs |
 | `low_performance_simulation` | `true` | Sensor simulation settings passed to spawn |
 | `world` | `demo` | Built-in world name used when `run_world=true` |
 | `world_path` | `robotnik_gazebo_ignition/worlds/<world>.world` | Override the world file when `run_world=true` |
 | `x` | `0.0` | Initial robot X coordinate, in metres |
 | `y` | `0.0` | Initial robot Y coordinate, in metres |
 | `z` | `0.0` | Initial robot Z coordinate, in metres |
+| `yaw` | `0.0` | Initial robot yaw, in radians |
 | `run_scan_pipeline` | `true` | Prepare scans once for localization or navigation |
 | `mapping_autostart` | `true` | Activate SLAM and map_saver automatically |
 | `run_mapping` | `false` | Forward the mode to localization; see its [mapping workflow](../robotnik_simulation_localization/README.md#mapping) |

@@ -98,8 +98,10 @@
           footprint_clearing_enabled: true
           max_obstacle_height: 2.0
           combination_method: 1
-          observation_sources: front_laser
-          front_laser:
+          # localization/scan only carries the rear laser; the front 3D lidar
+          # covers the driving direction.
+          observation_sources: rear_laser front_lidar
+          rear_laser:
             topic: /$(var robot_id)/localization/scan
             observation_persistence: 0.5
             expected_update_rate: 10.0
@@ -107,6 +109,19 @@
             min_obstacle_height: 0.0
             max_obstacle_height: 1.0
             inf_is_valid: true
+            marking: true
+            clearing: true
+            obstacle_max_range: 4.0
+            obstacle_min_range: 0.0
+            raytrace_max_range: 5.5
+            raytrace_min_range: 0.0
+          front_lidar:
+            topic: /$(var robot_id)/front_lidar/points
+            data_type: "PointCloud2"
+            observation_persistence: 0.5
+            expected_update_rate: 10.0
+            min_obstacle_height: 0.15
+            max_obstacle_height: 2.0
             marking: true
             clearing: true
             obstacle_max_range: 4.0
@@ -121,5 +136,5 @@
         inflation_layer:
           plugin: "nav2_costmap_2d::InflationLayer"
           cost_scaling_factor: 10.0
-          inflation_radius: 0.7
+          inflation_radius: 1.0
         always_send_full_costmap: true

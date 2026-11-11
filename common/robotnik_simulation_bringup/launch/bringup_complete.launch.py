@@ -108,7 +108,7 @@ def _launch_setup(context):
         }))
     actions.append(_include("robotnik_gazebo_ignition", "spawn_robot.launch.py", {
         **description,
-        **{name: values[name] for name in ("x", "y", "z", "low_performance_simulation", "spawn_rviz_config")},
+        **{name: values[name] for name in ("x", "y", "z", "yaw", "low_performance_simulation", "spawn_rviz_config")},
         "run_spawn_rviz": str(enabled("run_spawn_rviz") and not navigation).lower(),
     }))
     if enabled("run_scan_pipeline") and (localization or navigation):
@@ -117,9 +117,13 @@ def _launch_setup(context):
         actions.append(_include("robotnik_simulation_localization", "localization.launch.py", {
             **common, "run_mapping": values["run_mapping"],
             "run_scan_pipeline": "false", "mapping_autostart": values["mapping_autostart"],
+            # The spawn pose seeds AMCL; this assumes the map frame matches the world origin.
+            "initial_pose_x": values["x"], "initial_pose_y": values["y"], "initial_pose_yaw": values["yaw"],
         }, delay=10.0))
     if navigation:
-        actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", {**common, "run_scan_pipeline": "false"}, delay=15.0))
+        actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", {
+            **common, "run_scan_pipeline": "false", "run_navigation_rviz": values["run_navigation_rviz"],
+        }, delay=15.0))
     if moveit:
         actions.append(_include("robotnik_simulation_moveit", "moveit.launch.py", description, delay=25.0))
     return actions
@@ -128,8 +132,8 @@ def _launch_setup(context):
 ARGUMENT_NAMES = (
     "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type",
     "use_sim_time", "run_world", "run_gazebo_gui", "use_nvidia_gpu", "run_localization", "run_navigation", "run_moveit",
-    "run_spawn_rviz", "spawn_rviz_config", "low_performance_simulation",
-    "world", "world_path", "x", "y", "z", "run_mapping", "run_scan_pipeline", "mapping_autostart",
+    "run_spawn_rviz", "spawn_rviz_config", "run_navigation_rviz", "low_performance_simulation",
+    "world", "world_path", "x", "y", "z", "yaw", "run_mapping", "run_scan_pipeline", "mapping_autostart",
 )
 
 
@@ -155,6 +159,7 @@ def generate_launch_description():
         DeclareLaunchArgument("run_moveit", default_value="false"),
         DeclareLaunchArgument("run_spawn_rviz", default_value="true"),
         DeclareLaunchArgument("spawn_rviz_config", default_value=""),
+        DeclareLaunchArgument("run_navigation_rviz", default_value="true", description="Start the navigation RViz when navigation runs"),
         DeclareLaunchArgument("low_performance_simulation", default_value="true"),
         DeclareLaunchArgument("world", default_value="demo"),
         DeclareLaunchArgument("world_path", default_value=[
@@ -163,6 +168,7 @@ def generate_launch_description():
         DeclareLaunchArgument("x", default_value="0.0"),
         DeclareLaunchArgument("y", default_value="0.0"),
         DeclareLaunchArgument("z", default_value="0.0"),
+        DeclareLaunchArgument("yaw", default_value="0.0", description="Initial robot yaw, in radians"),
         DeclareLaunchArgument("run_mapping", default_value="false"),
     ]
     return LaunchDescription(arguments + [OpaqueFunction(function=_launch_setup)])
