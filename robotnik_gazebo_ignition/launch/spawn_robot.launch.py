@@ -159,7 +159,10 @@ def launch_setup(context, params):
 
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
             yaml.dump(bridge_config, tmp)
-            return tmp.name
+        context.register_event_handler(OnShutdown(
+            on_shutdown=lambda event, ctx: os.remove(tmp.name) if os.path.exists(tmp.name) else None,
+        ))
+        return tmp.name
 
     bridge_yaml = generate_bridge_yaml(params)
     ret.append(Node(
