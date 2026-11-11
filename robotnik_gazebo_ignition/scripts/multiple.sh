@@ -5,31 +5,34 @@ set -Eeuo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./spawn_multiple.sh [n] [base_name] [dx] [dy] [x0] [y0] [z] [yaw] [-- extra ros2 args]
+  ./spawn_multiple.sh [n] [base_name] [dx] [dy] [x0] [y0] [z] [yaw] [run_spawn_rviz] [-- extra ros2 args]
 
 Defaults:
-  n=3 base_name=rbwatcher dx=2.0 dy=0.0 x0=0.0 y0=0.0 z=0.05 yaw=0.0
+  n=3 base_name=rbwatcher dx=2.0 dy=0.0 x0=0.0 y0=0.0 z=0.05 yaw=0.0 run_spawn_rviz=false
 Examples:
   ./spawn_multiple.sh 5 rbwatcher 3.0 0 0 0 0.05 0
-  ./spawn_multiple.sh 4 rbwatcher 0 2.0 -- robot_model:=rbwatcher_slim run_spawn_rviz:=true
+  ./spawn_multiple.sh 4 rbwatcher 0 2.0 0 0 0.05 0 true
+  ./spawn_multiple.sh 2 rbwatcher 0 2.0 -- low_performance_simulation:=false
 EOF
 }
 
 [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && { usage; exit 0; }
 
-n="${1:-3}"
-base="${2:-rbwatcher}"
-dx="${3:-2.0}"
-dy="${4:-0.0}"
-x0="${5:-0.0}"
-y0="${6:-0.0}"
-run_spawn_rviz="${9:-false}"
-z="${7:-0.05}"
-yaw="${8:-0.0}"
-
-shift $(( $#>0 ? ($#>=8?8:$#) : 0 )) || true
+# Positional arguments end at "--"; everything after it goes to ros2 launch.
+pos=()
+while (( $# )) && [[ "$1" != "--" ]]; do pos+=( "$1" ); shift; done
 if [[ "${1:-}" == "--" ]]; then shift; fi
 extra_args=( "$@" )
+
+n="${pos[0]:-3}"
+base="${pos[1]:-rbwatcher}"
+dx="${pos[2]:-2.0}"
+dy="${pos[3]:-0.0}"
+x0="${pos[4]:-0.0}"
+y0="${pos[5]:-0.0}"
+z="${pos[6]:-0.05}"
+yaw="${pos[7]:-0.0}"  # TODO: not applied yet; spawn_robot.launch.py has no orientation argument.
+run_spawn_rviz="${pos[8]:-false}"
 
 pkg="robotnik_gazebo_ignition"
 file="spawn_robot.launch.py"
@@ -60,7 +63,7 @@ PY
 )
   echo "Launching $name at ($xi,$yi,$z) yaw=$yaw"
   ros2 launch "$pkg" "$file" \
-    robot:="$base" robot_model:="$base" robot_id:="$name" has_arm:=false \
+    robot:="$base" robot_model:="$base" robot_id:="$name" run_spawn_rviz:="$run_spawn_rviz" \
     x:="$xi" y:="$yi" z:="$z" \
     "${extra_args[@]}" &
   pids+=( "$!" )
