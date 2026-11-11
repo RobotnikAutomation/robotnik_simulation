@@ -38,6 +38,7 @@ see the [navigation guide](../robotnik_simulation_navigation/README.md).
 | `run_mapping` | `false` | Select SLAM instead of the AMCL branch |
 | `run_scan_pipeline` | `true` | Prepare scans in either mode; false uses an existing publisher |
 | `mapping_autostart` | `true` | Activate SLAM and map_saver automatically |
+| `initial_pose_x`, `initial_pose_y`, `initial_pose_yaw` | Empty | AMCL initial pose in the map frame; empty keeps `amcl.yaml`. Bringup passes the spawn pose, assuming the map frame matches the world origin |
 
 `localization.launch.py` accepts all seven. The leaves
 `localization_scan.launch.py`, `localization_2d.launch.py` and

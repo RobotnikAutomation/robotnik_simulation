@@ -117,6 +117,8 @@ def _launch_setup(context):
         actions.append(_include("robotnik_simulation_localization", "localization.launch.py", {
             **common, "run_mapping": values["run_mapping"],
             "run_scan_pipeline": "false", "mapping_autostart": values["mapping_autostart"],
+            # The spawn pose seeds AMCL; this assumes the map frame matches the world origin.
+            "initial_pose_x": values["x"], "initial_pose_y": values["y"], "initial_pose_yaw": values["yaw"],
         }, delay=10.0))
     if navigation:
         actions.append(_include("robotnik_simulation_navigation", "navigation.launch.py", {

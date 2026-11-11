@@ -39,6 +39,16 @@ def _resolve_amcl_config(context):
     return ParameterFile(path, allow_substs=True)
 
 
+def _initial_pose_overrides(context):
+    """AMCL initial pose overrides; empty arguments keep the amcl.yaml values."""
+    overrides = {}
+    for axis in ("x", "y", "yaw"):
+        value = LaunchConfiguration(f"initial_pose_{axis}").perform(context)
+        if value:
+            overrides[f"initial_pose.{axis}"] = float(value)
+    return overrides
+
+
 def _launch_setup(context, *_args, **_kwargs):
     robot_id = LaunchConfiguration("robot_id")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -74,6 +84,7 @@ def _launch_setup(context, *_args, **_kwargs):
             amcl_params,
             {
                 'use_sim_time': use_sim_time,
+                **_initial_pose_overrides(context),
             }
         ]
     )
@@ -126,6 +137,18 @@ def generate_launch_description():
             "frame_prefix",
             default_value=[LaunchConfiguration("robot_id"), "_"],
             description="Prefix for TF frames"
+        ),
+        DeclareLaunchArgument(
+            "initial_pose_x", default_value="",
+            description="AMCL initial X in the map frame; empty keeps amcl.yaml"
+        ),
+        DeclareLaunchArgument(
+            "initial_pose_y", default_value="",
+            description="AMCL initial Y in the map frame; empty keeps amcl.yaml"
+        ),
+        DeclareLaunchArgument(
+            "initial_pose_yaw", default_value="",
+            description="AMCL initial yaw in radians; empty keeps amcl.yaml"
         ),
     ]
 

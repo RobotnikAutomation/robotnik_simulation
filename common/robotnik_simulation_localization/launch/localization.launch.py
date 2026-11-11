@@ -61,6 +61,18 @@ def generate_launch_description():
             default_value="false",
             description="Run mapping instead of localization"
         ),
+        DeclareLaunchArgument(
+            "initial_pose_x", default_value="",
+            description="AMCL initial X in the map frame; empty keeps amcl.yaml"
+        ),
+        DeclareLaunchArgument(
+            "initial_pose_y", default_value="",
+            description="AMCL initial Y in the map frame; empty keeps amcl.yaml"
+        ),
+        DeclareLaunchArgument(
+            "initial_pose_yaw", default_value="",
+            description="AMCL initial yaw in radians; empty keeps amcl.yaml"
+        ),
     ]
 
     robot_id = LaunchConfiguration("robot_id")
@@ -95,6 +107,9 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'robot': robot,
             'frame_prefix': frame_prefix,
+            'initial_pose_x': LaunchConfiguration('initial_pose_x'),
+            'initial_pose_y': LaunchConfiguration('initial_pose_y'),
+            'initial_pose_yaw': LaunchConfiguration('initial_pose_yaw'),
         }.items(),
         condition=UnlessCondition(run_mapping)
     )
