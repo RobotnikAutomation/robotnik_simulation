@@ -139,7 +139,7 @@ The entrypoint translates nonempty settings from `env/robot.env`:
 | `RUN_SPAWN_RVIZ`, `SPAWN_RVIZ_CONFIG` | Basic view, omitted when navigation starts |
 | `RUN_SCAN_PIPELINE`, `MAPPING_AUTOSTART` | Shared scan preparation and automatic mapping lifecycle activation |
 | `LOW_PERFORMANCE_SIMULATION`, `RUN_MAPPING` | Sensor performance settings and localization mode |
-| `WORLD`, `WORLD_PATH`, `X`, `Y`, `Z` | World selection and spawn coordinates |
+| `WORLD`, `WORLD_PATH`, `X`, `Y`, `Z`, `YAW` | World selection, spawn coordinates and yaw (radians) |
 
 Empty values omit arguments. `WORLD_PATH` overrides `WORLD`. Navigation and
 MoveIt enable their own RViz by default; their visual controls are not part of

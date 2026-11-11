@@ -31,7 +31,7 @@ dy="${pos[3]:-0.0}"
 x0="${pos[4]:-0.0}"
 y0="${pos[5]:-0.0}"
 z="${pos[6]:-0.05}"
-yaw="${pos[7]:-0.0}"  # TODO: not applied yet; spawn_robot.launch.py has no orientation argument.
+yaw="${pos[7]:-0.0}"
 run_spawn_rviz="${pos[8]:-false}"
 
 pkg="robotnik_gazebo_ignition"
@@ -64,7 +64,7 @@ PY
   echo "Launching $name at ($xi,$yi,$z) yaw=$yaw"
   ros2 launch "$pkg" "$file" \
     robot:="$base" robot_model:="$base" robot_id:="$name" run_spawn_rviz:="$run_spawn_rviz" \
-    x:="$xi" y:="$yi" z:="$z" \
+    x:="$xi" y:="$yi" z:="$z" yaw:="$yaw" \
     "${extra_args[@]}" &
   pids+=( "$!" )
 

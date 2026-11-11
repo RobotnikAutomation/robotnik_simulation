@@ -108,7 +108,7 @@ def _launch_setup(context):
         }))
     actions.append(_include("robotnik_gazebo_ignition", "spawn_robot.launch.py", {
         **description,
-        **{name: values[name] for name in ("x", "y", "z", "low_performance_simulation", "spawn_rviz_config")},
+        **{name: values[name] for name in ("x", "y", "z", "yaw", "low_performance_simulation", "spawn_rviz_config")},
         "run_spawn_rviz": str(enabled("run_spawn_rviz") and not navigation).lower(),
     }))
     if enabled("run_scan_pipeline") and (localization or navigation):
@@ -131,7 +131,7 @@ ARGUMENT_NAMES = (
     "robot_id", "robot", "robot_model", "robot_xacro_path", "frame_prefix", "arm_type",
     "use_sim_time", "run_world", "run_gazebo_gui", "use_nvidia_gpu", "run_localization", "run_navigation", "run_moveit",
     "run_spawn_rviz", "spawn_rviz_config", "run_navigation_rviz", "low_performance_simulation",
-    "world", "world_path", "x", "y", "z", "run_mapping", "run_scan_pipeline", "mapping_autostart",
+    "world", "world_path", "x", "y", "z", "yaw", "run_mapping", "run_scan_pipeline", "mapping_autostart",
 )
 
 
@@ -166,6 +166,7 @@ def generate_launch_description():
         DeclareLaunchArgument("x", default_value="0.0"),
         DeclareLaunchArgument("y", default_value="0.0"),
         DeclareLaunchArgument("z", default_value="0.0"),
+        DeclareLaunchArgument("yaw", default_value="0.0", description="Initial robot yaw, in radians"),
         DeclareLaunchArgument("run_mapping", default_value="false"),
     ]
     return LaunchDescription(arguments + [OpaqueFunction(function=_launch_setup)])

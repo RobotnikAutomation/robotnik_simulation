@@ -115,6 +115,7 @@ def launch_setup(context, params):
             '-x', params['x'],
             '-y', params['y'],
             '-z', params['z'],
+            '-Y', params['yaw'],
         ],
         output='screen',
     ))
@@ -317,6 +318,7 @@ def generate_launch_description():
         ('x', 'Initial X Coordinate', '0.0'),
         ('y', 'Initial Y Coordinate', '0.0'),
         ('z', 'Initial Z Coordinate', '0.0'),
+        ('yaw', 'Initial yaw in radians', '0.0'),
         ('arm_type', 'Type of robotic arm', 'ur10e'),
         ('run_spawn_rviz', 'Run basic RViz', 'true'),
         ('spawn_rviz_config', 'Basic RViz configuration override', ''),

@@ -155,6 +155,7 @@ All 26 arguments are optional:
 | `x` | `0.0` | Initial robot X coordinate, in metres |
 | `y` | `0.0` | Initial robot Y coordinate, in metres |
 | `z` | `0.0` | Initial robot Z coordinate, in metres |
+| `yaw` | `0.0` | Initial robot yaw, in radians |
 | `run_scan_pipeline` | `true` | Prepare scans once for localization or navigation |
 | `mapping_autostart` | `true` | Activate SLAM and map_saver automatically |
 | `run_mapping` | `false` | Forward the mode to localization; see its [mapping workflow](../robotnik_simulation_localization/README.md#mapping) |

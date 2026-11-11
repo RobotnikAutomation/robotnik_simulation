@@ -267,6 +267,7 @@ All thirteen arguments are optional:
 | `x` | `0.0` | Initial X position in metres |
 | `y` | `0.0` | Initial Y position in metres |
 | `z` | `0.0` | Initial Z position in metres |
+| `yaw` | `0.0` | Initial yaw in radians |
 | `arm_type` | `ur10e` | Xacro `ur_type` for variants with a manipulator |
 | `run_spawn_rviz` | `true` | Open the basic RViz view |
 | `spawn_rviz_config` | Empty | Basic RViz override; empty selects the package configuration |

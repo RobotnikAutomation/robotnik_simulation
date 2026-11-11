@@ -97,6 +97,7 @@ main() {
     append_launch_arg "x" "${X:-}"
     append_launch_arg "y" "${Y:-}"
     append_launch_arg "z" "${Z:-}"
+    append_launch_arg "yaw" "${YAW:-}"
     append_launch_arg "frame_prefix" "${FRAME_PREFIX:-}"
     append_launch_arg "run_moveit" "${RUN_MOVEIT:-}"
     append_launch_arg "arm_type" "${ARM_TYPE:-}"
