@@ -148,6 +148,7 @@ All 26 arguments are optional:
 | `run_moveit` | `false` | Request MoveIt for a matching manipulation variant |
 | `run_spawn_rviz` | `true` | Request the basic view when navigation is not started |
 | `spawn_rviz_config` | Empty | Basic RViz override passed to spawn; empty selects its default |
+| `run_navigation_rviz` | `true` | Start the navigation RViz when navigation runs |
 | `low_performance_simulation` | `true` | Sensor simulation settings passed to spawn |
 | `world` | `demo` | Built-in world name used when `run_world=true` |
 | `world_path` | `robotnik_gazebo_ignition/worlds/<world>.world` | Override the world file when `run_world=true` |
