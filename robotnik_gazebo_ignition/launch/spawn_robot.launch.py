@@ -277,6 +277,14 @@ def _launch_spawn_rviz(context, params):
         content = f.read()
 
     updated_content = content.replace('$(var frame_prefix)', frame_prefix)
+    if not override and params['robot'].perform(context) == 'rbcar':
+        # The Ackermann controller receives TwistStamped on cmd_vel.
+        view = yaml.safe_load(updated_content)
+        for panel in view.get('Panels', []):
+            if panel.get('Class') == 'teleop_panel/Teleop':
+                panel['CommandMessageType'] = 'TwistStamped'
+                panel['Topic'] = panel['Topic'].removesuffix('_unstamped')
+        updated_content = yaml.safe_dump(view, sort_keys=False)
 
     temp_rviz = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.rviz')
     temp_rviz.write(updated_content)
